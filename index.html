@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>Survey App Prototype v3</title>
+<title>Survey App Prototype v4 Mobile Fix</title>
 <style>
   :root{
     --bg:#16181c; --panel:#20242a; --panel2:#262b33; --line:#343b45; --text:#eef2f7;
@@ -13,21 +13,37 @@
   }
   *{box-sizing:border-box}
   html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
-  body{height:100vh;overflow:hidden}
-  .app{display:grid;grid-template-columns:255px 1fr;height:100vh}
+  body{min-height:100vh}
+  .app{display:grid;grid-template-columns:255px 1fr;min-height:100vh}
   .sidebar{background:linear-gradient(180deg,#1a1d22 0%,#15181c 100%);border-right:1px solid var(--line);padding:14px;overflow:auto}
   .brand{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:14px;box-shadow:var(--shadow)}
   .logo{width:38px;height:38px;border-radius:12px;background:linear-gradient(145deg,#2d3a4d,#1c2530);display:grid;place-items:center;font-weight:700;color:#dce7ff;border:1px solid #3a4553}
   .brand h1{font-size:15px;margin:0}.brand p{margin:2px 0 0;color:var(--muted);font-size:12px}
   .group-title{color:#8d97a5;font-size:11px;text-transform:uppercase;letter-spacing:1.1px;margin:16px 8px 8px}
-  .nav-btn{width:100%;text-align:left;border:1px solid var(--line);background:var(--panel);color:var(--text);padding:11px 12px;margin:0 0 8px;border-radius:12px;cursor:pointer;font-size:14px}
-  .nav-btn:hover{background:#252a31}.nav-btn.active{background:#29313b;border-color:#4a586a}
+  .nav-btn,.mobile-nav-btn{
+    width:100%;text-align:left;border:1px solid var(--line);background:var(--panel);color:var(--text);
+    padding:11px 12px;margin:0 0 8px;border-radius:12px;cursor:pointer;font-size:14px
+  }
+  .nav-btn:hover,.mobile-nav-btn:hover{background:#252a31}
+  .nav-btn.active,.mobile-nav-btn.active{background:#29313b;border-color:#4a586a}
   .main{overflow:auto;padding:16px 16px 90px}
   .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
   .titlebox{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px 16px;flex:1}
   .titlebox h2{margin:0 0 4px;font-size:20px}.titlebox p{margin:0;color:var(--muted);font-size:13px}
   .quick{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
   .pill{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px;color:var(--muted);font-size:13px}
+  .mobile-menu-wrap{display:none;margin-bottom:14px}
+  .mobile-menu-toggle{
+    width:100%;display:flex;justify-content:space-between;align-items:center;
+    background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;color:var(--text);
+    font-size:15px;font-weight:600;cursor:pointer;
+  }
+  .mobile-menu{
+    display:none;margin-top:10px;background:var(--panel);border:1px solid var(--line);
+    border-radius:14px;padding:10px;box-shadow:var(--shadow)
+  }
+  .mobile-menu.open{display:block}
+  .mobile-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
   .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}
   .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:var(--shadow)}
   .card h3{margin:0 0 10px;font-size:15px}
@@ -56,9 +72,21 @@
   .ship-item strong{display:block;font-size:14px}
   .ship-item span{font-size:12px;color:var(--muted)}
   .small{font-size:12px;color:var(--muted)}
+
   @media (max-width:980px){
-    .app{grid-template-columns:1fr}.sidebar{display:none}.main{padding-bottom:110px}.footer-note{left:12px;right:12px}
+    .app{grid-template-columns:1fr}
+    .sidebar{display:none}
+    .main{padding-bottom:110px}
+    .footer-note{left:12px;right:12px}
     .span-8,.span-7,.span-6,.span-5,.span-4,.field.half,.field.third{grid-column:span 12}
+    .topbar{align-items:stretch;flex-direction:column}
+    .quick{justify-content:flex-start}
+    .mobile-menu-wrap{display:block}
+  }
+
+  @media (max-width:600px){
+    .mobile-grid{grid-template-columns:1fr}
+    .mini-item{flex-direction:column;align-items:flex-start}
   }
 </style>
 </head>
@@ -88,12 +116,36 @@
     <button class="nav-btn" data-section="maxfill">Max Fill</button>
     <button class="nav-btn" data-section="ullage">Ullage</button>
     <button class="nav-btn" data-section="linecontent">Line Content</button>
-
-    <div class="group-title">Beheer</div>
-    <button class="nav-btn" data-section="ships">Schepen</button>
   </aside>
 
   <main class="main">
+    <div class="mobile-menu-wrap">
+      <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
+        <span>Menu openen</span>
+        <span id="mobileArrow">▾</span>
+      </button>
+      <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-grid">
+          <button class="mobile-nav-btn active" data-section="dashboard">Overzicht</button>
+          <button class="mobile-nav-btn" data-section="lading">Lading</button>
+          <button class="mobile-nav-btn" data-section="berekeningen">Berekeningen</button>
+          <button class="mobile-nav-btn" data-section="ships">Schepen</button>
+          <button class="mobile-nav-btn" data-section="compatibility">Compatibility</button>
+          <button class="mobile-nav-btn" data-section="cargo">Cargo</button>
+          <button class="mobile-nav-btn" data-section="coatings">Coatings</button>
+          <button class="mobile-nav-btn" data-section="tankcheck">Tank Check</button>
+          <button class="mobile-nav-btn" data-section="previous">Previous Cargo</button>
+          <button class="mobile-nav-btn" data-section="cleaning">Tank Cleaning</button>
+          <button class="mobile-nav-btn" data-section="inspection">Inspectie</button>
+          <button class="mobile-nav-btn" data-section="vcf">VCF</button>
+          <button class="mobile-nav-btn" data-section="maxfill">Max Fill</button>
+          <button class="mobile-nav-btn" data-section="ullage">Ullage</button>
+          <button class="mobile-nav-btn" data-section="linecontent">Line Content</button>
+          <button class="mobile-nav-btn" data-section="notes">Notes / Rapport</button>
+        </div>
+      </div>
+    </div>
+
     <div class="topbar">
       <div class="titlebox">
         <h2 id="pageTitle">Overzicht</h2>
@@ -102,7 +154,7 @@
       <div class="quick">
         <div class="pill">Werkende modules</div>
         <div class="pill">Schepen beheer</div>
-        <div class="pill">Dark compact</div>
+        <div class="pill">Mobiel menu fix</div>
       </div>
     </div>
 
@@ -140,76 +192,27 @@
         <div class="card span-8">
           <h3>Schip toevoegen / aanpassen</h3>
           <div class="row">
-            <div class="field third">
-              <label>Vessel name</label>
-              <input id="shipName" placeholder="Bijv. VARKAN EDGE">
-            </div>
-            <div class="field third">
-              <label>IMO</label>
-              <input id="shipImo" placeholder="IMO number">
-            </div>
-            <div class="field third">
-              <label>Call sign</label>
-              <input id="shipCallsign" placeholder="Call sign">
-            </div>
+            <div class="field third"><label>Vessel name</label><input id="shipName" placeholder="Bijv. VARKAN EDGE"></div>
+            <div class="field third"><label>IMO</label><input id="shipImo" placeholder="IMO number"></div>
+            <div class="field third"><label>Call sign</label><input id="shipCallsign" placeholder="Call sign"></div>
 
-            <div class="field half">
-              <label>Operator / company</label>
-              <input id="shipOperator" placeholder="Operator / owner">
-            </div>
-            <div class="field half">
-              <label>Contact person</label>
-              <input id="shipContact" placeholder="Naam contactpersoon">
-            </div>
+            <div class="field half"><label>Operator / company</label><input id="shipOperator" placeholder="Operator / owner"></div>
+            <div class="field half"><label>Contact person</label><input id="shipContact" placeholder="Naam contactpersoon"></div>
 
-            <div class="field half">
-              <label>Email</label>
-              <input id="shipEmail" placeholder="email@company.com">
-            </div>
-            <div class="field half">
-              <label>Telefoonnummer</label>
-              <input id="shipPhone" placeholder="+31...">
-            </div>
+            <div class="field half"><label>Email</label><input id="shipEmail" placeholder="email@company.com"></div>
+            <div class="field half"><label>Telefoonnummer</label><input id="shipPhone" placeholder="+31..."></div>
 
-            <div class="field third">
-              <label>Aantal tanks</label>
-              <input id="shipTanks" placeholder="Bijv. 12">
-            </div>
-            <div class="field third">
-              <label>Standaard coating</label>
-              <input id="shipCoating" placeholder="Bijv. EPICON T-800">
-            </div>
-            <div class="field third">
-              <label>Heating</label>
-              <select id="shipHeating">
-                <option>Unknown</option>
-                <option>Yes</option>
-                <option>No</option>
-              </select>
-            </div>
+            <div class="field third"><label>Aantal tanks</label><input id="shipTanks" placeholder="Bijv. 12"></div>
+            <div class="field third"><label>Standaard coating</label><input id="shipCoating" placeholder="Bijv. EPICON T-800"></div>
+            <div class="field third"><label>Heating</label><select id="shipHeating"><option>Unknown</option><option>Yes</option><option>No</option></select></div>
 
-            <div class="field half">
-              <label>Tank coating details</label>
-              <input id="shipTankDetails" placeholder="Bijv. 1-6 Epicon / 7-12 MarineLine">
-            </div>
-            <div class="field half">
-              <label>Capaciteit / bijzonder</label>
-              <input id="shipCapacity" placeholder="Bijv. 8x 3000 m³ + 4x 1500 m³">
-            </div>
+            <div class="field half"><label>Tank coating details</label><input id="shipTankDetails" placeholder="Bijv. 1-6 Epicon / 7-12 MarineLine"></div>
+            <div class="field half"><label>Capaciteit / bijzonder</label><input id="shipCapacity" placeholder="Bijv. 8x 3000 m³ + 4x 1500 m³"></div>
 
-            <div class="field">
-              <label>Vaste notities</label>
-              <textarea id="shipNotes" placeholder="Bijzondere info over dit schip, tank layout, coating remarks, contact voorkeuren..."></textarea>
-            </div>
+            <div class="field"><label>Vaste notities</label><textarea id="shipNotes" placeholder="Bijzondere info over dit schip, tank layout, coating remarks, contact voorkeuren..."></textarea></div>
           </div>
           <div class="chips">
-            <div class="chip">Naam</div>
-            <div class="chip">Email</div>
-            <div class="chip">Tel nr</div>
-            <div class="chip">Aantal tanks</div>
-            <div class="chip">Coating</div>
-            <div class="chip">Heating</div>
-            <div class="chip">Tank details</div>
+            <div class="chip">Naam</div><div class="chip">Email</div><div class="chip">Tel nr</div><div class="chip">Aantal tanks</div><div class="chip">Coating</div><div class="chip">Heating</div><div class="chip">Tank details</div>
           </div>
           <div style="height:12px"></div>
           <div class="row">
@@ -219,15 +222,6 @@
           </div>
           <div style="height:8px"></div>
           <div class="small">Deze demo gebruikt localStorage, dus toegevoegde schepen blijven lokaal op je toestel/browser staan.</div>
-        </div>
-
-        <div class="card span-12">
-          <h3>Voorbeeld gebruik in app</h3>
-          <div class="mini-list">
-            <div class="mini-item"><span>Tank Check</span><span>Schip kiezen → coating en tankinfo direct invullen</span></div>
-            <div class="mini-item"><span>Notes / Rapport</span><span>Contactgegevens en operator snel overnemen</span></div>
-            <div class="mini-item"><span>Survey historie</span><span>Later uitbreiden met vorige inspecties per schip</span></div>
-          </div>
         </div>
       </div>
     </section>
@@ -332,7 +326,7 @@
   </main>
 </div>
 
-<div class="footer-note">Indicative prototype — nu uitgebreid met een schepen-beheer kopje met lokaal opslaan.</div>
+<div class="footer-note">Mobiele menu-fix toegevoegd. Op iPhone kun je nu alle secties openen.</div>
 
 <script>
 const meta = {
@@ -353,8 +347,9 @@ const meta = {
   linecontent:["Line Content","Leidinginhoud uit diameter en lengte."],
   notes:["Notes / Rapport","Conclusies en standaardzinnen."]
 };
+
 const pages=document.querySelectorAll(".page");
-const navs=document.querySelectorAll(".nav-btn");
+const navs=document.querySelectorAll(".nav-btn, .mobile-nav-btn");
 const title=document.getElementById("pageTitle");
 const sub=document.getElementById("pageSub");
 
@@ -363,8 +358,22 @@ function openSection(id){
   const page=document.getElementById(id); if(page) page.classList.remove("hidden");
   navs.forEach(n=>n.classList.toggle("active", n.dataset.section===id));
   if(meta[id]){title.textContent=meta[id][0]; sub.textContent=meta[id][1];}
+  const mobileMenu = document.getElementById("mobileMenu");
+  if(window.innerWidth <= 980 && mobileMenu.classList.contains("open")){
+    mobileMenu.classList.remove("open");
+    document.getElementById("mobileArrow").textContent = "▾";
+  }
+  window.scrollTo({top:0, behavior:"smooth"});
 }
+
 navs.forEach(btn=>btn.addEventListener("click",()=>openSection(btn.dataset.section)));
+
+function toggleMobileMenu(){
+  const menu = document.getElementById("mobileMenu");
+  const arrow = document.getElementById("mobileArrow");
+  menu.classList.toggle("open");
+  arrow.textContent = menu.classList.contains("open") ? "▴" : "▾";
+}
 
 function parseNum(value){ return parseFloat(String(value ?? "").replace(",", ".").trim()); }
 function fmt(value, digits=2){ if(!isFinite(value)) return "—"; return value.toLocaleString("nl-NL",{minimumFractionDigits:digits, maximumFractionDigits:digits}); }
@@ -377,6 +386,7 @@ const compatibilityDB = {
   "Caustic Soda|EPICON T-800": {status:"ok",title:"Toegestaan",text:"Indicatief geschikt voor alkalis, wel altijd maker specificaties controleren.",temp:"Maker list",water:"N.v.t.",cleaning:"Depends on grade",chips:["Alkali resistant","Strength check","Maker list"]},
   "Methanol|Zinc Silicate": {status:"bad",title:"Niet toegestaan",text:"Indicatief ongeschikt. Gebruik maker resistance list voor definitieve beoordeling.",temp:"—",water:"—",cleaning:"—",chips:["Niet gebruiken","Check alternatief"]}
 };
+
 function setStatusClass(el,status){ el.className = "status " + status; }
 function runCompatibility(){
   const cargo=document.getElementById("compatCargo").value;
@@ -471,6 +481,7 @@ function saveShip(){
   activeShipId = ship.id;
   localStorage.setItem("survey_ships_v1", JSON.stringify(ships));
   renderShipList();
+  alert("Schip opgeslagen.");
 }
 function newShip(){ activeShipId = null; fillShipForm(null); }
 function deleteShip(){
@@ -480,6 +491,7 @@ function deleteShip(){
   activeShipId = null;
   fillShipForm(null);
   renderShipList();
+  alert("Schip verwijderd.");
 }
 function renderShipList(){
   const box = document.getElementById("shipList");
@@ -497,7 +509,6 @@ function renderShipList(){
   });
 }
 
-// Demo preload
 if(!ships.length){
   ships = [{
     id:"demo1", name:"VARKAN EDGE", imo:"", callsign:"", operator:"", contact:"", email:"", phone:"",
@@ -505,7 +516,13 @@ if(!ships.length){
   }];
   localStorage.setItem("survey_ships_v1", JSON.stringify(ships));
 }
-runCompatibility(); calculateMaxFill(); calculateUllage(); calculateLineContent(); renderShipList(); fillShipForm(ships[0] || null);
+
+runCompatibility();
+calculateMaxFill();
+calculateUllage();
+calculateLineContent();
+renderShipList();
+fillShipForm(ships[0] || null);
 </script>
 </body>
 </html>
