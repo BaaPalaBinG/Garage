@@ -4,525 +4,210 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>Survey App Prototype v4 Mobile Fix</title>
+<title>Survey App Prototype v5 Cleaning Tool</title>
 <style>
-  :root{
-    --bg:#16181c; --panel:#20242a; --panel2:#262b33; --line:#343b45; --text:#eef2f7;
-    --muted:#aeb7c3; --ok:#1f8f4e; --warn:#c58b1a; --bad:#a33a3a; --unk:#5d6470;
-    --chip:#2d333d; --shadow:0 10px 30px rgba(0,0,0,.28);
-  }
-  *{box-sizing:border-box}
-  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
-  body{min-height:100vh}
-  .app{display:grid;grid-template-columns:255px 1fr;min-height:100vh}
-  .sidebar{background:linear-gradient(180deg,#1a1d22 0%,#15181c 100%);border-right:1px solid var(--line);padding:14px;overflow:auto}
-  .brand{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:14px;box-shadow:var(--shadow)}
-  .logo{width:38px;height:38px;border-radius:12px;background:linear-gradient(145deg,#2d3a4d,#1c2530);display:grid;place-items:center;font-weight:700;color:#dce7ff;border:1px solid #3a4553}
-  .brand h1{font-size:15px;margin:0}.brand p{margin:2px 0 0;color:var(--muted);font-size:12px}
-  .group-title{color:#8d97a5;font-size:11px;text-transform:uppercase;letter-spacing:1.1px;margin:16px 8px 8px}
-  .nav-btn,.mobile-nav-btn{
-    width:100%;text-align:left;border:1px solid var(--line);background:var(--panel);color:var(--text);
-    padding:11px 12px;margin:0 0 8px;border-radius:12px;cursor:pointer;font-size:14px
-  }
-  .nav-btn:hover,.mobile-nav-btn:hover{background:#252a31}
-  .nav-btn.active,.mobile-nav-btn.active{background:#29313b;border-color:#4a586a}
-  .main{overflow:auto;padding:16px 16px 90px}
-  .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
-  .titlebox{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px 16px;flex:1}
-  .titlebox h2{margin:0 0 4px;font-size:20px}.titlebox p{margin:0;color:var(--muted);font-size:13px}
-  .quick{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
-  .pill{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px;color:var(--muted);font-size:13px}
-  .mobile-menu-wrap{display:none;margin-bottom:14px}
-  .mobile-menu-toggle{
-    width:100%;display:flex;justify-content:space-between;align-items:center;
-    background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;color:var(--text);
-    font-size:15px;font-weight:600;cursor:pointer;
-  }
-  .mobile-menu{
-    display:none;margin-top:10px;background:var(--panel);border:1px solid var(--line);
-    border-radius:14px;padding:10px;box-shadow:var(--shadow)
-  }
-  .mobile-menu.open{display:block}
-  .mobile-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-  .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}
-  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:var(--shadow)}
-  .card h3{margin:0 0 10px;font-size:15px}
-  .sub{color:var(--muted);font-size:12px;margin-top:-4px;margin-bottom:10px}
-  .span-12{grid-column:span 12}.span-8{grid-column:span 8}.span-7{grid-column:span 7}.span-6{grid-column:span 6}.span-5{grid-column:span 5}.span-4{grid-column:span 4}
-  .row{display:grid;grid-template-columns:repeat(12,1fr);gap:10px}
-  .field{grid-column:span 12}.field.half{grid-column:span 6}.field.third{grid-column:span 4}
-  label{display:block;font-size:12px;color:var(--muted);margin:0 0 5px 2px}
-  input,select,textarea,button{width:100%;border-radius:12px;border:1px solid #404955;background:var(--panel2);color:var(--text);padding:11px 12px;font-size:14px;outline:none}
-  textarea{min-height:100px;resize:vertical}
-  input:focus,select:focus,textarea:focus{border-color:#6f8bb0}
-  .btn{cursor:pointer;background:#2e3743;border:1px solid #516073;font-weight:600}
-  .btn:hover{background:#36414e}.btn.accent{background:#2c4d76;border-color:#4c79b2}.btn.red{background:#5d2d2d;border-color:#8a4444}
-  .chips{display:flex;gap:8px;flex-wrap:wrap}
-  .chip{background:var(--chip);border:1px solid var(--line);padding:8px 10px;border-radius:999px;color:#d4dce6;font-size:12px}
-  .status{display:flex;align-items:center;gap:10px;padding:12px;border-radius:14px;border:1px solid var(--line);background:#222831;margin-top:10px}
-  .dot{width:12px;height:12px;border-radius:50%}.ok .dot{background:var(--ok)} .warn .dot{background:var(--warn)} .bad .dot{background:var(--bad)} .unk .dot{background:var(--unk)}
-  .status strong{display:block}.status span{font-size:12px;color:var(--muted)}
-  .mini-list{display:grid;gap:8px}
-  .mini-item{display:flex;justify-content:space-between;gap:12px;background:var(--panel2);border:1px solid var(--line);padding:10px 12px;border-radius:12px;font-size:13px}
-  .footer-note{position:fixed;left:271px;right:16px;bottom:14px;background:rgba(32,36,42,.92);backdrop-filter:blur(8px);border:1px solid var(--line);color:var(--muted);padding:10px 14px;border-radius:14px;font-size:12px}
-  .hidden{display:none}
-  .listbox{display:grid;gap:8px;max-height:420px;overflow:auto}
-  .ship-item{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;cursor:pointer}
-  .ship-item.active{border-color:#6f8bb0;background:#303743}
-  .ship-item strong{display:block;font-size:14px}
-  .ship-item span{font-size:12px;color:var(--muted)}
-  .small{font-size:12px;color:var(--muted)}
-
-  @media (max-width:980px){
-    .app{grid-template-columns:1fr}
-    .sidebar{display:none}
-    .main{padding-bottom:110px}
-    .footer-note{left:12px;right:12px}
-    .span-8,.span-7,.span-6,.span-5,.span-4,.field.half,.field.third{grid-column:span 12}
-    .topbar{align-items:stretch;flex-direction:column}
-    .quick{justify-content:flex-start}
-    .mobile-menu-wrap{display:block}
-  }
-
-  @media (max-width:600px){
-    .mobile-grid{grid-template-columns:1fr}
-    .mini-item{flex-direction:column;align-items:flex-start}
-  }
+:root{--bg:#16181c;--panel:#20242a;--panel2:#262b33;--line:#343b45;--text:#eef2f7;--muted:#aeb7c3;--ok:#1f8f4e;--warn:#c58b1a;--bad:#a33a3a;--unk:#5d6470;--chip:#2d333d;--shadow:0 10px 30px rgba(0,0,0,.28)}
+*{box-sizing:border-box}html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}body{min-height:100vh}
+.app{display:grid;grid-template-columns:255px 1fr;min-height:100vh}.sidebar{background:linear-gradient(180deg,#1a1d22 0%,#15181c 100%);border-right:1px solid var(--line);padding:14px;overflow:auto}
+.brand{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:14px;box-shadow:var(--shadow)}
+.logo{width:38px;height:38px;border-radius:12px;background:linear-gradient(145deg,#2d3a4d,#1c2530);display:grid;place-items:center;font-weight:700;color:#dce7ff;border:1px solid #3a4553}
+.brand h1{font-size:15px;margin:0}.brand p{margin:2px 0 0;color:var(--muted);font-size:12px}.group-title{color:#8d97a5;font-size:11px;text-transform:uppercase;letter-spacing:1.1px;margin:16px 8px 8px}
+.nav-btn,.mobile-nav-btn{width:100%;text-align:left;border:1px solid var(--line);background:var(--panel);color:var(--text);padding:11px 12px;margin:0 0 8px;border-radius:12px;cursor:pointer;font-size:14px}
+.nav-btn:hover,.mobile-nav-btn:hover{background:#252a31}.nav-btn.active,.mobile-nav-btn.active{background:#29313b;border-color:#4a586a}
+.main{overflow:auto;padding:16px 16px 90px}.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
+.titlebox{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px 16px;flex:1}.titlebox h2{margin:0 0 4px;font-size:20px}.titlebox p{margin:0;color:var(--muted);font-size:13px}
+.quick{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.pill{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px;color:var(--muted);font-size:13px}
+.mobile-menu-wrap{display:none;margin-bottom:14px}.mobile-menu-toggle{width:100%;display:flex;justify-content:space-between;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;color:var(--text);font-size:15px;font-weight:600;cursor:pointer}
+.mobile-menu{display:none;margin-top:10px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:10px;box-shadow:var(--shadow)}.mobile-menu.open{display:block}.mobile-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:var(--shadow)}.card h3{margin:0 0 10px;font-size:15px}
+.sub{color:var(--muted);font-size:12px;margin-top:-4px;margin-bottom:10px}.span-12{grid-column:span 12}.span-8{grid-column:span 8}.span-7{grid-column:span 7}.span-6{grid-column:span 6}.span-5{grid-column:span 5}.span-4{grid-column:span 4}
+.row{display:grid;grid-template-columns:repeat(12,1fr);gap:10px}.field{grid-column:span 12}.field.half{grid-column:span 6}.field.third{grid-column:span 4}
+label{display:block;font-size:12px;color:var(--muted);margin:0 0 5px 2px}
+input,select,textarea,button{width:100%;border-radius:12px;border:1px solid #404955;background:var(--panel2);color:var(--text);padding:11px 12px;font-size:14px;outline:none}
+textarea{min-height:100px;resize:vertical}input:focus,select:focus,textarea:focus{border-color:#6f8bb0}
+.btn{cursor:pointer;background:#2e3743;border:1px solid #516073;font-weight:600}.btn:hover{background:#36414e}.btn.accent{background:#2c4d76;border-color:#4c79b2}.btn.red{background:#5d2d2d;border-color:#8a4444}
+.chips{display:flex;gap:8px;flex-wrap:wrap}.chip{background:var(--chip);border:1px solid var(--line);padding:8px 10px;border-radius:999px;color:#d4dce6;font-size:12px}
+.status{display:flex;align-items:center;gap:10px;padding:12px;border-radius:14px;border:1px solid var(--line);background:#222831;margin-top:10px}
+.dot{width:12px;height:12px;border-radius:50%}.ok .dot{background:var(--ok)} .warn .dot{background:var(--warn)} .bad .dot{background:var(--bad)} .unk .dot{background:var(--unk)}
+.status strong{display:block}.status span{font-size:12px;color:var(--muted)}.mini-list{display:grid;gap:8px}
+.mini-item{display:flex;justify-content:space-between;gap:12px;background:var(--panel2);border:1px solid var(--line);padding:10px 12px;border-radius:12px;font-size:13px}
+.footer-note{position:fixed;left:271px;right:16px;bottom:14px;background:rgba(32,36,42,.92);backdrop-filter:blur(8px);border:1px solid var(--line);color:var(--muted);padding:10px 14px;border-radius:14px;font-size:12px}
+.hidden{display:none}.listbox{display:grid;gap:8px;max-height:420px;overflow:auto}.ship-item{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;cursor:pointer}.ship-item.active{border-color:#6f8bb0;background:#303743}
+.ship-item strong{display:block;font-size:14px}.ship-item span{font-size:12px;color:var(--muted)}.small{font-size:12px;color:var(--muted)}.steps{display:grid;gap:8px}.step{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:13px}
+@media (max-width:980px){.app{grid-template-columns:1fr}.sidebar{display:none}.main{padding-bottom:110px}.footer-note{left:12px;right:12px}.span-8,.span-7,.span-6,.span-5,.span-4,.field.half,.field.third{grid-column:span 12}.topbar{align-items:stretch;flex-direction:column}.quick{justify-content:flex-start}.mobile-menu-wrap{display:block}}
+@media (max-width:600px){.mobile-grid{grid-template-columns:1fr}.mini-item{flex-direction:column;align-items:flex-start}}
 </style>
 </head>
 <body>
 <div class="app">
-  <aside class="sidebar">
-    <div class="brand"><div class="logo">SV</div><div><h1>Survey App</h1><p>Lading + berekeningen + schepen</p></div></div>
+<aside class="sidebar">
+<div class="brand"><div class="logo">SV</div><div><h1>Survey App</h1><p>Lading + berekeningen + schepen</p></div></div>
+<div class="group-title">Hoofdmenu</div>
+<button class="nav-btn active" data-section="dashboard">Overzicht</button>
+<button class="nav-btn" data-section="lading">Lading</button>
+<button class="nav-btn" data-section="berekeningen">Berekeningen</button>
+<button class="nav-btn" data-section="ships">Schepen</button>
+<button class="nav-btn" data-section="notes">Notes / Rapport</button>
+<div class="group-title">Lading</div>
+<button class="nav-btn" data-section="compatibility">Compatibility</button>
+<button class="nav-btn" data-section="cargo">Cargo</button>
+<button class="nav-btn" data-section="coatings">Coatings</button>
+<button class="nav-btn" data-section="tankcheck">Tank Check</button>
+<button class="nav-btn" data-section="previous">Previous Cargo</button>
+<button class="nav-btn" data-section="cleaning">Tank Cleaning</button>
+<button class="nav-btn" data-section="inspection">Inspectie</button>
+<div class="group-title">Berekeningen</div>
+<button class="nav-btn" data-section="vcf">VCF</button>
+<button class="nav-btn" data-section="maxfill">Max Fill</button>
+<button class="nav-btn" data-section="ullage">Ullage</button>
+<button class="nav-btn" data-section="linecontent">Line Content</button>
+</aside>
 
-    <div class="group-title">Hoofdmenu</div>
-    <button class="nav-btn active" data-section="dashboard">Overzicht</button>
-    <button class="nav-btn" data-section="lading">Lading</button>
-    <button class="nav-btn" data-section="berekeningen">Berekeningen</button>
-    <button class="nav-btn" data-section="ships">Schepen</button>
-    <button class="nav-btn" data-section="notes">Notes / Rapport</button>
+<main class="main">
+<div class="mobile-menu-wrap">
+<button class="mobile-menu-toggle" onclick="toggleMobileMenu()"><span>Menu openen</span><span id="mobileArrow">▾</span></button>
+<div class="mobile-menu" id="mobileMenu"><div class="mobile-grid">
+<button class="mobile-nav-btn active" data-section="dashboard">Overzicht</button>
+<button class="mobile-nav-btn" data-section="lading">Lading</button>
+<button class="mobile-nav-btn" data-section="berekeningen">Berekeningen</button>
+<button class="mobile-nav-btn" data-section="ships">Schepen</button>
+<button class="mobile-nav-btn" data-section="compatibility">Compatibility</button>
+<button class="mobile-nav-btn" data-section="cargo">Cargo</button>
+<button class="mobile-nav-btn" data-section="coatings">Coatings</button>
+<button class="mobile-nav-btn" data-section="tankcheck">Tank Check</button>
+<button class="mobile-nav-btn" data-section="previous">Previous Cargo</button>
+<button class="mobile-nav-btn" data-section="cleaning">Tank Cleaning</button>
+<button class="mobile-nav-btn" data-section="inspection">Inspectie</button>
+<button class="mobile-nav-btn" data-section="vcf">VCF</button>
+<button class="mobile-nav-btn" data-section="maxfill">Max Fill</button>
+<button class="mobile-nav-btn" data-section="ullage">Ullage</button>
+<button class="mobile-nav-btn" data-section="linecontent">Line Content</button>
+<button class="mobile-nav-btn" data-section="notes">Notes / Rapport</button>
+</div></div></div>
 
-    <div class="group-title">Lading</div>
-    <button class="nav-btn" data-section="compatibility">Compatibility</button>
-    <button class="nav-btn" data-section="cargo">Cargo</button>
-    <button class="nav-btn" data-section="coatings">Coatings</button>
-    <button class="nav-btn" data-section="tankcheck">Tank Check</button>
-    <button class="nav-btn" data-section="previous">Previous Cargo</button>
-    <button class="nav-btn" data-section="cleaning">Tank Cleaning</button>
-    <button class="nav-btn" data-section="inspection">Inspectie</button>
+<div class="topbar"><div class="titlebox"><h2 id="pageTitle">Overzicht</h2><p id="pageSub">Compact prototype met lading, berekeningen, scheepsbeheer en cleaning advisor.</p></div><div class="quick"><div class="pill">Werkende modules</div><div class="pill">Cleaning advisor</div><div class="pill">Mobiel menu fix</div></div></div>
 
-    <div class="group-title">Berekeningen</div>
-    <button class="nav-btn" data-section="vcf">VCF</button>
-    <button class="nav-btn" data-section="maxfill">Max Fill</button>
-    <button class="nav-btn" data-section="ullage">Ullage</button>
-    <button class="nav-btn" data-section="linecontent">Line Content</button>
-  </aside>
+<section id="dashboard" class="page"><div class="grid">
+<div class="card span-6"><h3>Hoofdindeling</h3><div class="mini-list">
+<div class="mini-item"><span>🛢️ Lading</span><span>Cargo / coatings / tanks</span></div>
+<div class="mini-item"><span>📊 Berekeningen</span><span>VCF / max fill / line content</span></div>
+<div class="mini-item"><span>🚢 Schepen</span><span>Toevoegen / aanpassen / tankinfo</span></div>
+<div class="mini-item"><span>🧼 Cleaning</span><span>Previous → next cargo advies</span></div>
+</div></div>
+<div class="card span-6"><h3>Cleaning methodes toegevoegd</h3><div class="mini-list">
+<div class="mini-item"><span>Hot water wash</span><span>Standard wash</span></div>
+<div class="mini-item"><span>Chemical wash</span><span>KT-Alka / KT-Solve type</span></div>
+<div class="mini-item"><span>Fresh water rinse</span><span>Residues verwijderen</span></div>
+<div class="mini-item"><span>Steaming / drying / wall wash</span><span>High spec cargo</span></div>
+</div></div></div></section>
 
-  <main class="main">
-    <div class="mobile-menu-wrap">
-      <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
-        <span>Menu openen</span>
-        <span id="mobileArrow">▾</span>
-      </button>
-      <div class="mobile-menu" id="mobileMenu">
-        <div class="mobile-grid">
-          <button class="mobile-nav-btn active" data-section="dashboard">Overzicht</button>
-          <button class="mobile-nav-btn" data-section="lading">Lading</button>
-          <button class="mobile-nav-btn" data-section="berekeningen">Berekeningen</button>
-          <button class="mobile-nav-btn" data-section="ships">Schepen</button>
-          <button class="mobile-nav-btn" data-section="compatibility">Compatibility</button>
-          <button class="mobile-nav-btn" data-section="cargo">Cargo</button>
-          <button class="mobile-nav-btn" data-section="coatings">Coatings</button>
-          <button class="mobile-nav-btn" data-section="tankcheck">Tank Check</button>
-          <button class="mobile-nav-btn" data-section="previous">Previous Cargo</button>
-          <button class="mobile-nav-btn" data-section="cleaning">Tank Cleaning</button>
-          <button class="mobile-nav-btn" data-section="inspection">Inspectie</button>
-          <button class="mobile-nav-btn" data-section="vcf">VCF</button>
-          <button class="mobile-nav-btn" data-section="maxfill">Max Fill</button>
-          <button class="mobile-nav-btn" data-section="ullage">Ullage</button>
-          <button class="mobile-nav-btn" data-section="linecontent">Line Content</button>
-          <button class="mobile-nav-btn" data-section="notes">Notes / Rapport</button>
-        </div>
-      </div>
-    </div>
+<section id="ships" class="page hidden"><div class="grid">
+<div class="card span-4"><h3>Schepen</h3><div class="sub">Toegevoegde schepen. Klik om te laden en aan te passen.</div><div id="shipList" class="listbox"></div></div>
+<div class="card span-8"><h3>Schip toevoegen / aanpassen</h3><div class="row">
+<div class="field third"><label>Vessel name</label><input id="shipName" placeholder="Bijv. VARKAN EDGE"></div>
+<div class="field third"><label>IMO</label><input id="shipImo" placeholder="IMO number"></div>
+<div class="field third"><label>Call sign</label><input id="shipCallsign" placeholder="Call sign"></div>
+<div class="field half"><label>Operator / company</label><input id="shipOperator" placeholder="Operator / owner"></div>
+<div class="field half"><label>Contact person</label><input id="shipContact" placeholder="Naam contactpersoon"></div>
+<div class="field half"><label>Email</label><input id="shipEmail" placeholder="email@company.com"></div>
+<div class="field half"><label>Telefoonnummer</label><input id="shipPhone" placeholder="+31..."></div>
+<div class="field third"><label>Aantal tanks</label><input id="shipTanks" placeholder="Bijv. 12"></div>
+<div class="field third"><label>Standaard coating</label><input id="shipCoating" placeholder="Bijv. EPICON T-800"></div>
+<div class="field third"><label>Heating</label><select id="shipHeating"><option>Unknown</option><option>Yes</option><option>No</option></select></div>
+<div class="field half"><label>Tank coating details</label><input id="shipTankDetails" placeholder="Bijv. 1-6 Epicon / 7-12 MarineLine"></div>
+<div class="field half"><label>Capaciteit / bijzonder</label><input id="shipCapacity" placeholder="Bijv. 8x 3000 m³ + 4x 1500 m³"></div>
+<div class="field"><label>Vaste notities</label><textarea id="shipNotes" placeholder="Bijzondere info over dit schip, tank layout, coating remarks, contact voorkeuren..."></textarea></div>
+</div><div class="chips"><div class="chip">Naam</div><div class="chip">Email</div><div class="chip">Tel nr</div><div class="chip">Aantal tanks</div><div class="chip">Coating</div><div class="chip">Heating</div></div><div style="height:12px"></div><div class="row"><div class="field third"><button class="btn accent" onclick="saveShip()">Opslaan</button></div><div class="field third"><button class="btn" onclick="newShip()">Nieuw leeg formulier</button></div><div class="field third"><button class="btn red" onclick="deleteShip()">Verwijderen</button></div></div><div style="height:8px"></div><div class="small">Deze demo gebruikt localStorage, dus toegevoegde schepen blijven lokaal op je toestel/browser staan.</div></div>
+</div></section>
 
-    <div class="topbar">
-      <div class="titlebox">
-        <h2 id="pageTitle">Overzicht</h2>
-        <p id="pageSub">Compact prototype met lading, berekeningen en scheepsbeheer.</p>
-      </div>
-      <div class="quick">
-        <div class="pill">Werkende modules</div>
-        <div class="pill">Schepen beheer</div>
-        <div class="pill">Mobiel menu fix</div>
-      </div>
-    </div>
+<section id="lading" class="page hidden"><div class="grid"><div class="card span-12"><h3>Lading overzicht</h3><div class="mini-list"><div class="mini-item"><span>Cargo</span><span>Eigenschappen / waarschuwingen</span></div><div class="mini-item"><span>Coatings</span><span>Toegestaan / conditioneel / niet toegestaan</span></div><div class="mini-item"><span>Compatibility</span><span>Directe cargo ↔ coating check</span></div><div class="mini-item"><span>Cleaning</span><span>Previous → next cargo cleaning advies</span></div></div></div></div></section>
 
-    <section id="dashboard" class="page">
-      <div class="grid">
-        <div class="card span-6">
-          <h3>Hoofdindeling</h3>
-          <div class="mini-list">
-            <div class="mini-item"><span>🛢️ Lading</span><span>Cargo / coatings / tanks</span></div>
-            <div class="mini-item"><span>📊 Berekeningen</span><span>VCF / max fill / line content</span></div>
-            <div class="mini-item"><span>🚢 Schepen</span><span>Toevoegen / aanpassen / tankinfo</span></div>
-            <div class="mini-item"><span>📝 Notes / Rapport</span><span>Opmerkingen / conclusie</span></div>
-          </div>
-        </div>
-        <div class="card span-6">
-          <h3>Nieuw onderdeel: Schepen</h3>
-          <div class="mini-list">
-            <div class="mini-item"><span>Basisinfo</span><span>Naam / IMO / operator</span></div>
-            <div class="mini-item"><span>Contact</span><span>Email / tel / contactpersoon</span></div>
-            <div class="mini-item"><span>Tanks</span><span>Aantal tanks / coating / heating</span></div>
-            <div class="mini-item"><span>Opmerkingen</span><span>Vaste notes per schip</span></div>
-          </div>
-        </div>
-      </div>
-    </section>
+<section id="berekeningen" class="page hidden"><div class="grid"><div class="card span-12"><h3>Berekeningen overzicht</h3><div class="mini-list"><div class="mini-item"><span>VCF</span><span>ASTM / density / vac-air / temperature</span></div><div class="mini-item"><span>Max Fill</span><span>Thermal expansion voor bijna alle producten</span></div><div class="mini-item"><span>Ullage</span><span>Vrije ruimte / percentage gevuld</span></div><div class="mini-item"><span>Line Content</span><span>Leidinginhoud uit diameter + lengte</span></div></div></div></div></section>
 
-    <section id="ships" class="page hidden">
-      <div class="grid">
-        <div class="card span-4">
-          <h3>Schepen</h3>
-          <div class="sub">Toegevoegde schepen. Klik om te laden en aan te passen.</div>
-          <div id="shipList" class="listbox"></div>
-        </div>
+<section id="compatibility" class="page hidden"><div class="grid">
+<div class="card span-7"><h3>Compatibility Check</h3><div class="row">
+<div class="field half"><label>Cargo</label><select id="compatCargo"><option>GTL</option><option>Methanol</option><option>FAME</option><option>Caustic Soda</option><option>Jet Fuel</option></select></div>
+<div class="field half"><label>Coating</label><select id="compatCoating"><option>EPICON T-800</option><option>MarineLine</option><option>Zinc Silicate</option><option>Epoxy Phenolic</option></select></div>
+<div class="field third"><label>Max temp</label><input id="compatTemp" readonly></div>
+<div class="field third"><label>Water limiet</label><input id="compatWater" readonly></div>
+<div class="field third"><label>Cleaning</label><input id="compatCleaning" readonly></div>
+</div><div id="compatStatus" class="status warn"><div class="dot"></div><div><strong id="compatTitle"></strong><span id="compatText"></span></div></div><div style="height:10px"></div><button class="btn accent" onclick="runCompatibility()">Check compatibility</button></div>
+<div class="card span-5"><h3>Snelle notities</h3><div class="chips" id="compatChips"></div><div style="height:10px"></div><label>Opmerking</label><textarea id="compatNote"></textarea><div style="height:10px"></div><button class="btn accent" onclick="copyCompatConclusion()">Copy conclusie</button></div>
+</div></section>
 
-        <div class="card span-8">
-          <h3>Schip toevoegen / aanpassen</h3>
-          <div class="row">
-            <div class="field third"><label>Vessel name</label><input id="shipName" placeholder="Bijv. VARKAN EDGE"></div>
-            <div class="field third"><label>IMO</label><input id="shipImo" placeholder="IMO number"></div>
-            <div class="field third"><label>Call sign</label><input id="shipCallsign" placeholder="Call sign"></div>
+<section id="cargo" class="page hidden"><div class="grid"><div class="card span-12"><h3>Cargo</h3><textarea>Hier komt cargo info/database.</textarea></div></div></section>
+<section id="coatings" class="page hidden"><div class="grid"><div class="card span-12"><h3>Coatings</h3><textarea>Hier komt coating info/database.</textarea></div></div></section>
+<section id="tankcheck" class="page hidden"><div class="grid"><div class="card span-12"><h3>Tank Check</h3><textarea>Later koppelen aan gekozen schip + tank details.</textarea></div></div></section>
+<section id="previous" class="page hidden"><div class="grid"><div class="card span-12"><h3>Previous Cargo</h3><textarea>Previous cargo historie per tank.</textarea></div></div></section>
 
-            <div class="field half"><label>Operator / company</label><input id="shipOperator" placeholder="Operator / owner"></div>
-            <div class="field half"><label>Contact person</label><input id="shipContact" placeholder="Naam contactpersoon"></div>
+<section id="cleaning" class="page hidden"><div class="grid">
+<div class="card span-7"><h3>Cleaning Advisor</h3><div class="sub">Kies previous cargo en next cargo. De app geeft een praktisch cleaning advies.</div><div class="row">
+<div class="field half"><label>Previous cargo</label><select id="cleanPrev"><option>Diesel / GTL</option><option>Gasoline</option><option>Jet Fuel</option><option>Methanol</option><option>FAME / Biofuel</option><option>Veg Oil</option><option>Caustic Soda</option><option>Unknown / Heavy contamination</option></select></div>
+<div class="field half"><label>Next cargo</label><select id="cleanNext"><option>Methanol</option><option>Diesel / GTL</option><option>Gasoline</option><option>Jet Fuel</option><option>FAME / Biofuel</option><option>Veg Oil</option><option>Caustic Soda</option></select></div>
+<div class="field half"><label>Cleaning level</label><select id="cleanLevel"><option>Auto</option><option>None</option><option>Hot water wash</option><option>Chemical wash</option><option>Chemical + rinse</option><option>Chemical + steam</option><option>Full cleaning (all)</option></select></div>
+<div class="field half"><label>Tank condition</label><select id="cleanCondition"><option>Normal</option><option>Dry tank required</option><option>Odour critical</option><option>Wall wash likely</option></select></div>
+</div><div style="height:10px"></div><button class="btn accent" onclick="runCleaningAdvisor()">Genereer cleaning advies</button></div>
+<div class="card span-5"><h3>Advies status</h3><div id="cleanStatus" class="status warn"><div class="dot"></div><div><strong id="cleanTitle">Cleaning required</strong><span id="cleanText">Kies previous en next cargo voor advies.</span></div></div><div style="height:10px"></div><div class="mini-list"><div class="mini-item"><span>Niveau</span><strong id="cleanSeverity">—</strong></div><div class="mini-item"><span>Wall wash</span><strong id="cleanWallWash">—</strong></div><div class="mini-item"><span>Dry tank</span><strong id="cleanDry">—</strong></div></div></div>
+<div class="card span-8"><h3>Cleaning steps</h3><div id="cleanSteps" class="steps"></div></div>
+<div class="card span-4"><h3>Quick methods</h3><div class="chips"><div class="chip">Hot water wash</div><div class="chip">Chemical wash</div><div class="chip">Fresh water rinse</div><div class="chip">Steaming</div><div class="chip">Drying / mopping</div><div class="chip">Wall wash</div></div><div style="height:10px"></div><label>Cleaning report note</label><textarea id="cleanNote" placeholder="Extra note..."></textarea><div style="height:10px"></div><button class="btn accent" onclick="copyCleaningReport()">Copy cleaning note</button></div>
+</div></section>
 
-            <div class="field half"><label>Email</label><input id="shipEmail" placeholder="email@company.com"></div>
-            <div class="field half"><label>Telefoonnummer</label><input id="shipPhone" placeholder="+31..."></div>
+<section id="inspection" class="page hidden"><div class="grid"><div class="card span-12"><h3>Inspectie</h3><textarea>Coating conditie / foto's / notes.</textarea></div></div></section>
+<section id="vcf" class="page hidden"><div class="grid"><div class="card span-12"><h3>VCF</h3><textarea>VCF module volgt.</textarea></div></div></section>
 
-            <div class="field third"><label>Aantal tanks</label><input id="shipTanks" placeholder="Bijv. 12"></div>
-            <div class="field third"><label>Standaard coating</label><input id="shipCoating" placeholder="Bijv. EPICON T-800"></div>
-            <div class="field third"><label>Heating</label><select id="shipHeating"><option>Unknown</option><option>Yes</option><option>No</option></select></div>
+<section id="maxfill" class="page hidden"><div class="grid">
+<div class="card span-8"><h3>Max Fill</h3><div class="row">
+<div class="field half"><label>Tank capaciteit (m³)</label><input id="maxCap" value="5000"></div>
+<div class="field half"><label>Product</label><select id="maxProduct"><option>Gasoline</option><option>Diesel / GTL</option><option>Jet Fuel</option><option>Methanol</option><option>FAME</option><option>Veg Oil</option><option>Generic Chemical</option></select></div>
+<div class="field third"><label>Load temp (°C)</label><input id="maxLoadTemp" value="20"></div>
+<div class="field third"><label>Max temp (°C)</label><input id="maxHighTemp" value="35"></div>
+<div class="field third"><label>Expansion factor /°C</label><input id="maxFactor" placeholder="auto / manual"></div>
+</div><div style="height:10px"></div><button class="btn accent" onclick="calculateMaxFill()">Bereken max fill</button></div>
+<div class="card span-4"><h3>Output</h3><div class="mini-list"><div class="mini-item"><span>Max volume</span><strong id="maxVolumeOut">—</strong></div><div class="mini-item"><span>Max fill</span><strong id="maxFillOut">—</strong></div><div class="mini-item"><span>Benodigde ullage</span><strong id="maxUllageOut">—</strong></div></div></div>
+</div></section>
 
-            <div class="field half"><label>Tank coating details</label><input id="shipTankDetails" placeholder="Bijv. 1-6 Epicon / 7-12 MarineLine"></div>
-            <div class="field half"><label>Capaciteit / bijzonder</label><input id="shipCapacity" placeholder="Bijv. 8x 3000 m³ + 4x 1500 m³"></div>
+<section id="ullage" class="page hidden"><div class="grid">
+<div class="card span-7"><h3>Ullage</h3><div class="row"><div class="field half"><label>Tank capacity (m³)</label><input id="ullCap" value="5000"></div><div class="field half"><label>Loaded volume (m³)</label><input id="ullLoaded" value="4870"></div></div><div style="height:10px"></div><button class="btn accent" onclick="calculateUllage()">Bereken</button></div>
+<div class="card span-5"><h3>Output</h3><div class="mini-list"><div class="mini-item"><span>Fill %</span><strong id="ullFillOut">—</strong></div><div class="mini-item"><span>Free space</span><strong id="ullFreeOut">—</strong></div></div></div>
+</div></section>
 
-            <div class="field"><label>Vaste notities</label><textarea id="shipNotes" placeholder="Bijzondere info over dit schip, tank layout, coating remarks, contact voorkeuren..."></textarea></div>
-          </div>
-          <div class="chips">
-            <div class="chip">Naam</div><div class="chip">Email</div><div class="chip">Tel nr</div><div class="chip">Aantal tanks</div><div class="chip">Coating</div><div class="chip">Heating</div><div class="chip">Tank details</div>
-          </div>
-          <div style="height:12px"></div>
-          <div class="row">
-            <div class="field third"><button class="btn accent" onclick="saveShip()">Opslaan</button></div>
-            <div class="field third"><button class="btn" onclick="newShip()">Nieuw leeg formulier</button></div>
-            <div class="field third"><button class="btn red" onclick="deleteShip()">Verwijderen</button></div>
-          </div>
-          <div style="height:8px"></div>
-          <div class="small">Deze demo gebruikt localStorage, dus toegevoegde schepen blijven lokaal op je toestel/browser staan.</div>
-        </div>
-      </div>
-    </section>
+<section id="linecontent" class="page hidden"><div class="grid">
+<div class="card span-7"><h3>Line Content</h3><div class="row"><div class="field half"><label>Diameter</label><input id="lineDiameter" value="6"></div><div class="field half"><label>Lengte (m)</label><input id="lineLength" value="120"></div><div class="field half"><label>Unit</label><select id="lineUnit"><option>Inch</option><option>mm</option></select></div><div class="field half"><label>Extra</label><input></div></div><div style="height:10px"></div><button class="btn accent" onclick="calculateLineContent()">Bereken line content</button></div>
+<div class="card span-5"><h3>Output</h3><div class="mini-item"><span>Volume</span><strong id="lineOut">—</strong></div></div>
+</div></section>
 
-    <section id="lading" class="page hidden"><div class="grid"><div class="card span-12"><h3>Lading overzicht</h3><div class="mini-list"><div class="mini-item"><span>Cargo</span><span>Eigenschappen / waarschuwingen</span></div><div class="mini-item"><span>Coatings</span><span>Toegestaan / conditioneel / niet toegestaan</span></div><div class="mini-item"><span>Compatibility</span><span>Directe cargo ↔ coating check</span></div><div class="mini-item"><span>Tank Check</span><span>Tank + previous cargo + next cargo</span></div></div></div></div></section>
+<section id="notes" class="page hidden"><div class="grid"><div class="card span-12"><h3>Notes / Rapport</h3><textarea>Rapporttekst en standaard zinnen.</textarea></div></div></section>
+</main></div>
 
-    <section id="berekeningen" class="page hidden"><div class="grid"><div class="card span-12"><h3>Berekeningen overzicht</h3><div class="mini-list"><div class="mini-item"><span>VCF</span><span>ASTM / density / vac-air / temperature</span></div><div class="mini-item"><span>Max Fill</span><span>Thermal expansion voor bijna alle producten</span></div><div class="mini-item"><span>Ullage</span><span>Vrije ruimte / percentage gevuld</span></div><div class="mini-item"><span>Line Content</span><span>Leidinginhoud uit diameter + lengte</span></div></div></div></div></section>
-
-    <section id="compatibility" class="page hidden">
-      <div class="grid">
-        <div class="card span-7">
-          <h3>Compatibility Check</h3>
-          <div class="row">
-            <div class="field half"><label>Cargo</label><select id="compatCargo"><option>GTL</option><option>Methanol</option><option>FAME</option><option>Caustic Soda</option><option>Jet Fuel</option></select></div>
-            <div class="field half"><label>Coating</label><select id="compatCoating"><option>EPICON T-800</option><option>MarineLine</option><option>Zinc Silicate</option><option>Epoxy Phenolic</option></select></div>
-            <div class="field third"><label>Max temp</label><input id="compatTemp" readonly></div>
-            <div class="field third"><label>Water limiet</label><input id="compatWater" readonly></div>
-            <div class="field third"><label>Cleaning</label><input id="compatCleaning" readonly></div>
-          </div>
-          <div id="compatStatus" class="status warn"><div class="dot"></div><div><strong id="compatTitle"></strong><span id="compatText"></span></div></div>
-          <div style="height:10px"></div><button class="btn accent" onclick="runCompatibility()">Check compatibility</button>
-        </div>
-        <div class="card span-5">
-          <h3>Snelle notities</h3>
-          <div class="chips" id="compatChips"></div>
-          <div style="height:10px"></div>
-          <label>Opmerking</label><textarea id="compatNote"></textarea>
-          <div style="height:10px"></div><button class="btn accent" onclick="copyCompatConclusion()">Copy conclusie</button>
-        </div>
-      </div>
-    </section>
-
-    <section id="cargo" class="page hidden"><div class="grid"><div class="card span-12"><h3>Cargo</h3><textarea>Hier komt cargo info/database.</textarea></div></div></section>
-    <section id="coatings" class="page hidden"><div class="grid"><div class="card span-12"><h3>Coatings</h3><textarea>Hier komt coating info/database.</textarea></div></div></section>
-    <section id="tankcheck" class="page hidden"><div class="grid"><div class="card span-12"><h3>Tank Check</h3><textarea>Later koppelen aan gekozen schip + tank details.</textarea></div></div></section>
-    <section id="previous" class="page hidden"><div class="grid"><div class="card span-12"><h3>Previous Cargo</h3><textarea>Previous cargo historie per tank.</textarea></div></div></section>
-    <section id="cleaning" class="page hidden"><div class="grid"><div class="card span-12"><h3>Tank Cleaning</h3><textarea>Cleaning advies / templates.</textarea></div></div></section>
-    <section id="inspection" class="page hidden"><div class="grid"><div class="card span-12"><h3>Inspectie</h3><textarea>Coating conditie / foto's / notes.</textarea></div></div></section>
-    <section id="vcf" class="page hidden"><div class="grid"><div class="card span-12"><h3>VCF</h3><textarea>VCF module volgt.</textarea></div></div></section>
-
-    <section id="maxfill" class="page hidden">
-      <div class="grid">
-        <div class="card span-8">
-          <h3>Max Fill</h3>
-          <div class="row">
-            <div class="field half"><label>Tank capaciteit (m³)</label><input id="maxCap" value="5000"></div>
-            <div class="field half"><label>Product</label><select id="maxProduct"><option>Gasoline</option><option>Diesel / GTL</option><option>Jet Fuel</option><option>Methanol</option><option>FAME</option><option>Veg Oil</option><option>Generic Chemical</option></select></div>
-            <div class="field third"><label>Load temp (°C)</label><input id="maxLoadTemp" value="20"></div>
-            <div class="field third"><label>Max temp (°C)</label><input id="maxHighTemp" value="35"></div>
-            <div class="field third"><label>Expansion factor /°C</label><input id="maxFactor" placeholder="auto / manual"></div>
-          </div>
-          <div style="height:10px"></div><button class="btn accent" onclick="calculateMaxFill()">Bereken max fill</button>
-        </div>
-        <div class="card span-4">
-          <h3>Output</h3>
-          <div class="mini-list">
-            <div class="mini-item"><span>Max volume</span><strong id="maxVolumeOut">—</strong></div>
-            <div class="mini-item"><span>Max fill</span><strong id="maxFillOut">—</strong></div>
-            <div class="mini-item"><span>Benodigde ullage</span><strong id="maxUllageOut">—</strong></div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="ullage" class="page hidden">
-      <div class="grid">
-        <div class="card span-7">
-          <h3>Ullage</h3>
-          <div class="row">
-            <div class="field half"><label>Tank capacity (m³)</label><input id="ullCap" value="5000"></div>
-            <div class="field half"><label>Loaded volume (m³)</label><input id="ullLoaded" value="4870"></div>
-          </div>
-          <div style="height:10px"></div><button class="btn accent" onclick="calculateUllage()">Bereken</button>
-        </div>
-        <div class="card span-5">
-          <h3>Output</h3>
-          <div class="mini-list">
-            <div class="mini-item"><span>Fill %</span><strong id="ullFillOut">—</strong></div>
-            <div class="mini-item"><span>Free space</span><strong id="ullFreeOut">—</strong></div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="linecontent" class="page hidden">
-      <div class="grid">
-        <div class="card span-7">
-          <h3>Line Content</h3>
-          <div class="row">
-            <div class="field half"><label>Diameter</label><input id="lineDiameter" value="6"></div>
-            <div class="field half"><label>Lengte (m)</label><input id="lineLength" value="120"></div>
-            <div class="field half"><label>Unit</label><select id="lineUnit"><option>Inch</option><option>mm</option></select></div>
-            <div class="field half"><label>Extra</label><input></div>
-          </div>
-          <div style="height:10px"></div><button class="btn accent" onclick="calculateLineContent()">Bereken line content</button>
-        </div>
-        <div class="card span-5"><h3>Output</h3><div class="mini-item"><span>Volume</span><strong id="lineOut">—</strong></div></div>
-      </div>
-    </section>
-
-    <section id="notes" class="page hidden"><div class="grid"><div class="card span-12"><h3>Notes / Rapport</h3><textarea>Rapporttekst en standaard zinnen.</textarea></div></div></section>
-  </main>
-</div>
-
-<div class="footer-note">Mobiele menu-fix toegevoegd. Op iPhone kun je nu alle secties openen.</div>
+<div class="footer-note">Cleaning module toegevoegd. Previous cargo → next cargo geeft nu cleaning advies.</div>
 
 <script>
-const meta = {
-  dashboard:["Overzicht","Compact prototype met lading, berekeningen en scheepsbeheer."],
-  lading:["Lading","Alles rondom cargo, coatings, cleaning en tank suitability."],
-  berekeningen:["Berekeningen","Alle reken tools voor volume, VCF, max fill, ullage en line content."],
-  ships:["Schepen","Schepen toevoegen, aanpassen en lokaal opslaan."],
-  compatibility:["Compatibility","Cargo ↔ coating check met duidelijke statusblokken."],
-  cargo:["Cargo","Productinformatie en waarschuwingen."],
-  coatings:["Coatings","Database met coating info."],
-  tankcheck:["Tank Check","Later koppelen aan gekozen schip + tanks."],
-  previous:["Previous Cargo","Historie per tank."],
-  cleaning:["Tank Cleaning","Wash advies en templates."],
-  inspection:["Inspectie","Coating conditie en tank observations."],
-  vcf:["VCF","ASTM blok voor density/temperature correcties."],
-  maxfill:["Max Fill","Algemene thermal expansion tool voor bijna alle producten."],
-  ullage:["Ullage","Vrije ruimte en fill percentage."],
-  linecontent:["Line Content","Leidinginhoud uit diameter en lengte."],
-  notes:["Notes / Rapport","Conclusies en standaardzinnen."]
-};
-
-const pages=document.querySelectorAll(".page");
-const navs=document.querySelectorAll(".nav-btn, .mobile-nav-btn");
-const title=document.getElementById("pageTitle");
-const sub=document.getElementById("pageSub");
-
-function openSection(id){
-  pages.forEach(p=>p.classList.add("hidden"));
-  const page=document.getElementById(id); if(page) page.classList.remove("hidden");
-  navs.forEach(n=>n.classList.toggle("active", n.dataset.section===id));
-  if(meta[id]){title.textContent=meta[id][0]; sub.textContent=meta[id][1];}
-  const mobileMenu = document.getElementById("mobileMenu");
-  if(window.innerWidth <= 980 && mobileMenu.classList.contains("open")){
-    mobileMenu.classList.remove("open");
-    document.getElementById("mobileArrow").textContent = "▾";
-  }
-  window.scrollTo({top:0, behavior:"smooth"});
-}
-
+const meta={dashboard:["Overzicht","Compact prototype met lading, berekeningen, scheepsbeheer en cleaning advisor."],lading:["Lading","Alles rondom cargo, coatings, cleaning en tank suitability."],berekeningen:["Berekeningen","Alle reken tools voor volume, VCF, max fill, ullage en line content."],ships:["Schepen","Schepen toevoegen, aanpassen en lokaal opslaan."],compatibility:["Compatibility","Cargo ↔ coating check met duidelijke statusblokken."],cargo:["Cargo","Productinformatie en waarschuwingen."],coatings:["Coatings","Database met coating info."],tankcheck:["Tank Check","Later koppelen aan gekozen schip + tanks."],previous:["Previous Cargo","Historie per tank."],cleaning:["Tank Cleaning","Previous cargo → next cargo cleaning advies."],inspection:["Inspectie","Coating conditie en tank observations."],vcf:["VCF","ASTM blok voor density/temperature correcties."],maxfill:["Max Fill","Algemene thermal expansion tool voor bijna alle producten."],ullage:["Ullage","Vrije ruimte en fill percentage."],linecontent:["Line Content","Leidinginhoud uit diameter en lengte."],notes:["Notes / Rapport","Conclusies en standaardzinnen."]};
+const pages=document.querySelectorAll(".page"),navs=document.querySelectorAll(".nav-btn, .mobile-nav-btn"),title=document.getElementById("pageTitle"),sub=document.getElementById("pageSub");
+function openSection(id){pages.forEach(p=>p.classList.add("hidden"));const page=document.getElementById(id);if(page)page.classList.remove("hidden");navs.forEach(n=>n.classList.toggle("active",n.dataset.section===id));if(meta[id]){title.textContent=meta[id][0];sub.textContent=meta[id][1]}const mobileMenu=document.getElementById("mobileMenu");if(window.innerWidth<=980&&mobileMenu.classList.contains("open")){mobileMenu.classList.remove("open");document.getElementById("mobileArrow").textContent="▾"}window.scrollTo({top:0,behavior:"smooth"})}
 navs.forEach(btn=>btn.addEventListener("click",()=>openSection(btn.dataset.section)));
-
-function toggleMobileMenu(){
-  const menu = document.getElementById("mobileMenu");
-  const arrow = document.getElementById("mobileArrow");
-  menu.classList.toggle("open");
-  arrow.textContent = menu.classList.contains("open") ? "▴" : "▾";
-}
-
-function parseNum(value){ return parseFloat(String(value ?? "").replace(",", ".").trim()); }
-function fmt(value, digits=2){ if(!isFinite(value)) return "—"; return value.toLocaleString("nl-NL",{minimumFractionDigits:digits, maximumFractionDigits:digits}); }
-function copyText(text){ navigator.clipboard.writeText(text); }
-
-// Compatibility
-const compatibilityDB = {
-  "GTL|EPICON T-800": {status:"ok",title:"Toegestaan",text:"Indicatief toegestaan. Blijf maker list en voyage condities controleren.",temp:"Maker list",water:"N.v.t.",cleaning:"Standard CPP cleaning",chips:["CPP range","Expansion relevant","Check voyage temp"]},
-  "Methanol|EPICON T-800": {status:"warn",title:"Conditioneel toegestaan",text:"Methanol vaak mogelijk, maar altijd maker list en limits checken.",temp:"Maker list",water:"Dry tank",cleaning:"High standard wash",chips:["Droge tank vereist","Maker list check","Wall wash mogelijk"]},
-  "Caustic Soda|EPICON T-800": {status:"ok",title:"Toegestaan",text:"Indicatief geschikt voor alkalis, wel altijd maker specificaties controleren.",temp:"Maker list",water:"N.v.t.",cleaning:"Depends on grade",chips:["Alkali resistant","Strength check","Maker list"]},
-  "Methanol|Zinc Silicate": {status:"bad",title:"Niet toegestaan",text:"Indicatief ongeschikt. Gebruik maker resistance list voor definitieve beoordeling.",temp:"—",water:"—",cleaning:"—",chips:["Niet gebruiken","Check alternatief"]}
-};
-
-function setStatusClass(el,status){ el.className = "status " + status; }
-function runCompatibility(){
-  const cargo=document.getElementById("compatCargo").value;
-  const coating=document.getElementById("compatCoating").value;
-  const data=compatibilityDB[cargo+"|"+coating] || {status:"unk",title:"Onbekend",text:"Geen vaste regel in prototype. Check maker resistance list en operator requirements.",temp:"Check maker list",water:"Check cargo spec",cleaning:"Check transition",chips:["Onbekend","Maker list check","Operator confirmation"]};
-  setStatusClass(document.getElementById("compatStatus"), data.status);
-  document.getElementById("compatTitle").textContent=data.title;
-  document.getElementById("compatText").textContent=data.text;
-  document.getElementById("compatTemp").value=data.temp;
-  document.getElementById("compatWater").value=data.water;
-  document.getElementById("compatCleaning").value=data.cleaning;
-  const chipsEl=document.getElementById("compatChips"); chipsEl.innerHTML="";
-  data.chips.forEach(c=>{ const d=document.createElement("div"); d.className="chip"; d.textContent=c; chipsEl.appendChild(d); });
-}
-function copyCompatConclusion(){
-  const cargo=document.getElementById("compatCargo").value;
-  const coating=document.getElementById("compatCoating").value;
-  const title=document.getElementById("compatTitle").textContent;
-  const note=document.getElementById("compatNote").value.trim();
-  copyText(`${cargo} / ${coating}: ${title}. ${document.getElementById("compatText").textContent}${note ? " Notes: "+note : ""}`);
-}
-
-// Calculations
-const expansionDefaults = {"Gasoline":0.00120,"Diesel / GTL":0.00085,"Jet Fuel":0.00095,"Methanol":0.00118,"FAME":0.00080,"Veg Oil":0.00070,"Generic Chemical":0.00100};
-function calculateMaxFill(){
-  const cap=parseNum(document.getElementById("maxCap").value), loadT=parseNum(document.getElementById("maxLoadTemp").value), maxT=parseNum(document.getElementById("maxHighTemp").value);
-  let factor=parseNum(document.getElementById("maxFactor").value); if(!isFinite(factor)) factor=expansionDefaults[document.getElementById("maxProduct").value];
-  if(!isFinite(cap)||!isFinite(loadT)||!isFinite(maxT)||!isFinite(factor)||cap<=0){ document.getElementById("maxVolumeOut").textContent="Ongeldig"; document.getElementById("maxFillOut").textContent="Ongeldig"; document.getElementById("maxUllageOut").textContent="Ongeldig"; return; }
-  const deltaT=Math.max(0,maxT-loadT), maxVolumeAtLoad=cap/(1+factor*deltaT), ullageNeeded=cap-maxVolumeAtLoad, fillPct=(maxVolumeAtLoad/cap)*100;
-  document.getElementById("maxVolumeOut").textContent=fmt(maxVolumeAtLoad,2)+" m³";
-  document.getElementById("maxFillOut").textContent=fmt(fillPct,2)+" %";
-  document.getElementById("maxUllageOut").textContent=fmt(ullageNeeded,2)+" m³";
-}
-function calculateUllage(){
-  const cap=parseNum(document.getElementById("ullCap").value), loaded=parseNum(document.getElementById("ullLoaded").value);
-  if(!isFinite(cap)||!isFinite(loaded)||cap<=0){ document.getElementById("ullFillOut").textContent="Ongeldig"; document.getElementById("ullFreeOut").textContent="Ongeldig"; return; }
-  document.getElementById("ullFillOut").textContent=fmt((loaded/cap)*100,2)+" %";
-  document.getElementById("ullFreeOut").textContent=fmt(cap-loaded,2)+" m³";
-}
-function calculateLineContent(){
-  const dia=parseNum(document.getElementById("lineDiameter").value), len=parseNum(document.getElementById("lineLength").value), unit=document.getElementById("lineUnit").value;
-  if(!isFinite(dia)||!isFinite(len)||dia<=0||len<=0){ document.getElementById("lineOut").textContent="Ongeldig"; return; }
-  let diaM = unit==="Inch" ? dia*0.0254 : dia/1000;
-  const volume=Math.PI*Math.pow(diaM/2,2)*len;
-  document.getElementById("lineOut").textContent=fmt(volume,4)+" m³";
-}
-
-// Ships local storage
-let ships = JSON.parse(localStorage.getItem("survey_ships_v1") || "[]");
-let activeShipId = null;
-
-function shipFormData(){
-  return {
-    id: activeShipId || Date.now().toString(),
-    name: document.getElementById("shipName").value.trim(),
-    imo: document.getElementById("shipImo").value.trim(),
-    callsign: document.getElementById("shipCallsign").value.trim(),
-    operator: document.getElementById("shipOperator").value.trim(),
-    contact: document.getElementById("shipContact").value.trim(),
-    email: document.getElementById("shipEmail").value.trim(),
-    phone: document.getElementById("shipPhone").value.trim(),
-    tanks: document.getElementById("shipTanks").value.trim(),
-    coating: document.getElementById("shipCoating").value.trim(),
-    heating: document.getElementById("shipHeating").value,
-    tankDetails: document.getElementById("shipTankDetails").value.trim(),
-    capacity: document.getElementById("shipCapacity").value.trim(),
-    notes: document.getElementById("shipNotes").value.trim()
-  };
-}
-function fillShipForm(ship){
-  activeShipId = ship?.id || null;
-  document.getElementById("shipName").value = ship?.name || "";
-  document.getElementById("shipImo").value = ship?.imo || "";
-  document.getElementById("shipCallsign").value = ship?.callsign || "";
-  document.getElementById("shipOperator").value = ship?.operator || "";
-  document.getElementById("shipContact").value = ship?.contact || "";
-  document.getElementById("shipEmail").value = ship?.email || "";
-  document.getElementById("shipPhone").value = ship?.phone || "";
-  document.getElementById("shipTanks").value = ship?.tanks || "";
-  document.getElementById("shipCoating").value = ship?.coating || "";
-  document.getElementById("shipHeating").value = ship?.heating || "Unknown";
-  document.getElementById("shipTankDetails").value = ship?.tankDetails || "";
-  document.getElementById("shipCapacity").value = ship?.capacity || "";
-  document.getElementById("shipNotes").value = ship?.notes || "";
-  renderShipList();
-}
-function saveShip(){
-  const ship = shipFormData();
-  if(!ship.name){ alert("Geef minimaal een vessel name op."); return; }
-  const idx = ships.findIndex(s => s.id === ship.id);
-  if(idx >= 0) ships[idx] = ship; else ships.unshift(ship);
-  activeShipId = ship.id;
-  localStorage.setItem("survey_ships_v1", JSON.stringify(ships));
-  renderShipList();
-  alert("Schip opgeslagen.");
-}
-function newShip(){ activeShipId = null; fillShipForm(null); }
-function deleteShip(){
-  if(!activeShipId){ alert("Geen schip geselecteerd."); return; }
-  ships = ships.filter(s => s.id !== activeShipId);
-  localStorage.setItem("survey_ships_v1", JSON.stringify(ships));
-  activeShipId = null;
-  fillShipForm(null);
-  renderShipList();
-  alert("Schip verwijderd.");
-}
-function renderShipList(){
-  const box = document.getElementById("shipList");
-  box.innerHTML = "";
-  if(!ships.length){
-    box.innerHTML = '<div class="ship-item"><strong>Nog geen schepen</strong><span>Voeg rechts je eerste schip toe.</span></div>';
-    return;
-  }
-  ships.forEach(ship => {
-    const div = document.createElement("div");
-    div.className = "ship-item" + (ship.id === activeShipId ? " active" : "");
-    div.innerHTML = `<strong>${ship.name || "Onbekend schip"}</strong><span>${ship.operator || "Geen operator"} · ${ship.tanks || "?"} tanks · ${ship.coating || "geen coating"}</span>`;
-    div.onclick = () => fillShipForm(ship);
-    box.appendChild(div);
-  });
-}
-
-if(!ships.length){
-  ships = [{
-    id:"demo1", name:"VARKAN EDGE", imo:"", callsign:"", operator:"", contact:"", email:"", phone:"",
-    tanks:"12", coating:"EPICON T-800", heating:"Unknown", tankDetails:"1-12 Epicon T-800", capacity:"", notes:"Demo schip"
-  }];
-  localStorage.setItem("survey_ships_v1", JSON.stringify(ships));
-}
-
-runCompatibility();
-calculateMaxFill();
-calculateUllage();
-calculateLineContent();
-renderShipList();
-fillShipForm(ships[0] || null);
+function toggleMobileMenu(){const menu=document.getElementById("mobileMenu"),arrow=document.getElementById("mobileArrow");menu.classList.toggle("open");arrow.textContent=menu.classList.contains("open")?"▴":"▾"}
+function parseNum(value){return parseFloat(String(value??"").replace(",",".").trim())}function fmt(value,digits=2){if(!isFinite(value))return"—";return value.toLocaleString("nl-NL",{minimumFractionDigits:digits,maximumFractionDigits:digits})}function copyText(text){navigator.clipboard.writeText(text)}
+const compatibilityDB={"GTL|EPICON T-800":{status:"ok",title:"Toegestaan",text:"Indicatief toegestaan. Blijf maker list en voyage condities controleren.",temp:"Maker list",water:"N.v.t.",cleaning:"Standard CPP cleaning",chips:["CPP range","Expansion relevant","Check voyage temp"]},"Methanol|EPICON T-800":{status:"warn",title:"Conditioneel toegestaan",text:"Methanol vaak mogelijk, maar altijd maker list en limits checken.",temp:"Maker list",water:"Dry tank",cleaning:"High standard wash",chips:["Droge tank vereist","Maker list check","Wall wash mogelijk"]},"Caustic Soda|EPICON T-800":{status:"ok",title:"Toegestaan",text:"Indicatief geschikt voor alkalis, wel altijd maker specificaties controleren.",temp:"Maker list",water:"N.v.t.",cleaning:"Depends on grade",chips:["Alkali resistant","Strength check","Maker list"]},"Methanol|Zinc Silicate":{status:"bad",title:"Niet toegestaan",text:"Indicatief ongeschikt. Gebruik maker resistance list voor definitieve beoordeling.",temp:"—",water:"—",cleaning:"—",chips:["Niet gebruiken","Check alternatief"]}};
+function setStatusClass(el,status){el.className="status "+status}
+function runCompatibility(){const cargo=document.getElementById("compatCargo").value,coating=document.getElementById("compatCoating").value;const data=compatibilityDB[cargo+"|"+coating]||{status:"unk",title:"Onbekend",text:"Geen vaste regel in prototype. Check maker resistance list en operator requirements.",temp:"Check maker list",water:"Check cargo spec",cleaning:"Check transition",chips:["Onbekend","Maker list check","Operator confirmation"]};setStatusClass(document.getElementById("compatStatus"),data.status);document.getElementById("compatTitle").textContent=data.title;document.getElementById("compatText").textContent=data.text;document.getElementById("compatTemp").value=data.temp;document.getElementById("compatWater").value=data.water;document.getElementById("compatCleaning").value=data.cleaning;const chipsEl=document.getElementById("compatChips");chipsEl.innerHTML="";data.chips.forEach(c=>{const d=document.createElement("div");d.className="chip";d.textContent=c;chipsEl.appendChild(d)})}
+function copyCompatConclusion(){const cargo=document.getElementById("compatCargo").value,coating=document.getElementById("compatCoating").value,ttl=document.getElementById("compatTitle").textContent,note=document.getElementById("compatNote").value.trim();copyText(`${cargo} / ${coating}: ${ttl}. ${document.getElementById("compatText").textContent}${note ? " Notes: "+note : ""}`)}
+const cleaningRules={"Diesel / GTL|Methanol":{status:"warn",title:"High cleaning required",text:"Transition to methanol vraagt hoge reinigingsstandaard en droge tank.",severity:"High",wallWash:"Likely",dry:"Yes",steps:["Hot water wash","Chemical wash","Fresh water rinse","Drying / mopping","Wall wash if required"],report:"Previous diesel/GTL to methanol: hot water wash, chemical wash, fresh water rinse and dry tank required. Wall wash likely."},"Gasoline|Methanol":{status:"warn",title:"High cleaning required",text:"Odour en hydrocarbon residues kritisch voor methanol.",severity:"High",wallWash:"Likely",dry:"Yes",steps:["Hot water wash","Chemical wash","Fresh water rinse","Steaming","Drying / mopping","Wall wash"],report:"Previous gasoline to methanol: full cleaning incl. chemical wash, rinse, steaming and dry tank recommended. Wall wash likely."},"Methanol|Jet Fuel":{status:"warn",title:"Thorough cleaning required",text:"Residues and water control belangrijk voor jet fuel.",severity:"Medium-High",wallWash:"Possible",dry:"Yes",steps:["Fresh water rinse","Hot water wash","Drying / mopping","High cleanliness final check"],report:"Previous methanol to jet fuel: rinse, hot wash and dry tank recommended with final cleanliness verification."},"FAME / Biofuel|Diesel / GTL":{status:"warn",title:"Chemical wash advised",text:"FAME residues kunnen lastig zijn en contamination geven.",severity:"Medium",wallWash:"Normally no",dry:"Preferred",steps:["Hot water wash","Chemical wash","Fresh water rinse","Drying if required"],report:"Previous FAME to diesel/GTL: hot wash, chemical wash and rinse advised due to residue risk."},"Veg Oil|Methanol":{status:"warn",title:"Full cleaning advised",text:"Sticky residues maken dit een lastige overgang.",severity:"High",wallWash:"Likely",dry:"Yes",steps:["Hot water wash","Alkaline chemical wash","Fresh water rinse","Steaming if needed","Drying / mopping","Wall wash"],report:"Previous veg oil to methanol: full cleaning required with alkaline chemical wash, rinse, dry tank and likely wall wash."},"Caustic Soda|Methanol":{status:"warn",title:"Rinse and dry critical",text:"Caustic residues volledig verwijderen en tank droog opleveren.",severity:"High",wallWash:"Possible",dry:"Yes",steps:["Fresh water rinse","Repeat rinse if needed","Drying / mopping","Wall wash if spec cargo"],report:"Previous caustic to methanol: thorough fresh water rinse and dry tank critical. Wall wash may be required."},"Diesel / GTL|Gasoline":{status:"ok",title:"Standard cleaning",text:"CPP overgang, meestal standaard cleaning afhankelijk van spec.",severity:"Low-Medium",wallWash:"Normally no",dry:"No",steps:["Hot water wash","Final drain / inspect"],report:"Previous diesel/GTL to gasoline: standard hot water wash and final inspection usually sufficient."},"Jet Fuel|Diesel / GTL":{status:"ok",title:"Standard cleaning",text:"CPP overgang, standaard wash meestal voldoende.",severity:"Low",wallWash:"No",dry:"No",steps:["Hot water wash","Final drain / inspect"],report:"Previous jet fuel to diesel/GTL: standard wash and final inspection."}};
+function forceOverride(base,level,condition){let steps=[...base.steps],severity=base.severity;if(level==="Hot water wash")steps=["Hot water wash","Final drain / inspect"];if(level==="Chemical wash")steps=["Chemical wash","Final drain / inspect"];if(level==="Chemical + rinse")steps=["Chemical wash","Fresh water rinse","Final drain / inspect"];if(level==="Chemical + steam")steps=["Chemical wash","Steaming","Final drain / inspect"];if(level==="Full cleaning (all)")steps=["Hot water wash","Chemical wash","Fresh water rinse","Steaming","Drying / mopping","Wall wash if required"];if(level!=="Auto"&&level!=="None")severity="Manual";if(level==="None"){steps=["No cleaning selected"];severity="Manual"}let dry=base.dry,wallWash=base.wallWash;if(condition==="Dry tank required"){if(!steps.includes("Drying / mopping"))steps.push("Drying / mopping");dry="Yes"}if(condition==="Odour critical"){if(!steps.includes("Steaming"))steps.push("Steaming");severity=severity==="Low"?"Medium":severity}if(condition==="Wall wash likely"){if(!steps.includes("Wall wash"))steps.push("Wall wash");wallWash="Likely"}return{steps,severity,dry,wallWash}}
+function runCleaningAdvisor(){const prev=document.getElementById("cleanPrev").value,next=document.getElementById("cleanNext").value,level=document.getElementById("cleanLevel").value,condition=document.getElementById("cleanCondition").value;const base=cleaningRules[prev+"|"+next]||{status:"warn",title:"General cleaning advised",text:"Geen vaste overgang in prototype. Gebruik hot wash als basis en verhoog cleaning level waar nodig.",severity:"Medium",wallWash:"Check spec",dry:"If required",steps:["Hot water wash","Inspect residues","Upgrade to chemical wash if needed"],report:`Previous ${prev} to ${next}: general cleaning advised, confirm based on residues and cargo specification.`};const adjusted=forceOverride(base,level,condition);const statusEl=document.getElementById("cleanStatus");statusEl.className="status "+base.status;document.getElementById("cleanTitle").textContent=base.title;document.getElementById("cleanText").textContent=base.text;document.getElementById("cleanSeverity").textContent=adjusted.severity;document.getElementById("cleanWallWash").textContent=adjusted.wallWash;document.getElementById("cleanDry").textContent=adjusted.dry;const stepsEl=document.getElementById("cleanSteps");stepsEl.innerHTML="";adjusted.steps.forEach((s,i)=>{const div=document.createElement("div");div.className="step";div.textContent=(i+1)+". "+s;stepsEl.appendChild(div)});const noteEl=document.getElementById("cleanNote");if(!noteEl.value.trim())noteEl.value=base.report}
+function copyCleaningReport(){const prev=document.getElementById("cleanPrev").value,next=document.getElementById("cleanNext").value,steps=Array.from(document.querySelectorAll("#cleanSteps .step")).map(el=>el.textContent.replace(/^\\d+\\.\\s/,"")),extra=document.getElementById("cleanNote").value.trim();copyText(`Cleaning advice ${prev} to ${next}: ${steps.join(", ")}.${extra ? " Notes: " + extra : ""}`)}
+const expansionDefaults={"Gasoline":0.00120,"Diesel / GTL":0.00085,"Jet Fuel":0.00095,"Methanol":0.00118,"FAME":0.00080,"Veg Oil":0.00070,"Generic Chemical":0.00100};
+function calculateMaxFill(){const cap=parseNum(document.getElementById("maxCap").value),loadT=parseNum(document.getElementById("maxLoadTemp").value),maxT=parseNum(document.getElementById("maxHighTemp").value);let factor=parseNum(document.getElementById("maxFactor").value);if(!isFinite(factor))factor=expansionDefaults[document.getElementById("maxProduct").value];if(!isFinite(cap)||!isFinite(loadT)||!isFinite(maxT)||!isFinite(factor)||cap<=0){document.getElementById("maxVolumeOut").textContent="Ongeldig";document.getElementById("maxFillOut").textContent="Ongeldig";document.getElementById("maxUllageOut").textContent="Ongeldig";return}const deltaT=Math.max(0,maxT-loadT),maxVolumeAtLoad=cap/(1+factor*deltaT),ullageNeeded=cap-maxVolumeAtLoad,fillPct=(maxVolumeAtLoad/cap)*100;document.getElementById("maxVolumeOut").textContent=fmt(maxVolumeAtLoad,2)+" m³";document.getElementById("maxFillOut").textContent=fmt(fillPct,2)+" %";document.getElementById("maxUllageOut").textContent=fmt(ullageNeeded,2)+" m³"}
+function calculateUllage(){const cap=parseNum(document.getElementById("ullCap").value),loaded=parseNum(document.getElementById("ullLoaded").value);if(!isFinite(cap)||!isFinite(loaded)||cap<=0){document.getElementById("ullFillOut").textContent="Ongeldig";document.getElementById("ullFreeOut").textContent="Ongeldig";return}document.getElementById("ullFillOut").textContent=fmt((loaded/cap)*100,2)+" %";document.getElementById("ullFreeOut").textContent=fmt(cap-loaded,2)+" m³"}
+function calculateLineContent(){const dia=parseNum(document.getElementById("lineDiameter").value),len=parseNum(document.getElementById("lineLength").value),unit=document.getElementById("lineUnit").value;if(!isFinite(dia)||!isFinite(len)||dia<=0||len<=0){document.getElementById("lineOut").textContent="Ongeldig";return}let diaM=unit==="Inch"?dia*0.0254:dia/1000;const volume=Math.PI*Math.pow(diaM/2,2)*len;document.getElementById("lineOut").textContent=fmt(volume,4)+" m³"}
+let ships=JSON.parse(localStorage.getItem("survey_ships_v1")||"[]"),activeShipId=null;
+function shipFormData(){return{id:activeShipId||Date.now().toString(),name:document.getElementById("shipName").value.trim(),imo:document.getElementById("shipImo").value.trim(),callsign:document.getElementById("shipCallsign").value.trim(),operator:document.getElementById("shipOperator").value.trim(),contact:document.getElementById("shipContact").value.trim(),email:document.getElementById("shipEmail").value.trim(),phone:document.getElementById("shipPhone").value.trim(),tanks:document.getElementById("shipTanks").value.trim(),coating:document.getElementById("shipCoating").value.trim(),heating:document.getElementById("shipHeating").value,tankDetails:document.getElementById("shipTankDetails").value.trim(),capacity:document.getElementById("shipCapacity").value.trim(),notes:document.getElementById("shipNotes").value.trim()}}
+function fillShipForm(ship){activeShipId=ship?.id||null;document.getElementById("shipName").value=ship?.name||"";document.getElementById("shipImo").value=ship?.imo||"";document.getElementById("shipCallsign").value=ship?.callsign||"";document.getElementById("shipOperator").value=ship?.operator||"";document.getElementById("shipContact").value=ship?.contact||"";document.getElementById("shipEmail").value=ship?.email||"";document.getElementById("shipPhone").value=ship?.phone||"";document.getElementById("shipTanks").value=ship?.tanks||"";document.getElementById("shipCoating").value=ship?.coating||"";document.getElementById("shipHeating").value=ship?.heating||"Unknown";document.getElementById("shipTankDetails").value=ship?.tankDetails||"";document.getElementById("shipCapacity").value=ship?.capacity||"";document.getElementById("shipNotes").value=ship?.notes||"";renderShipList()}
+function saveShip(){const ship=shipFormData();if(!ship.name){alert("Geef minimaal een vessel name op.");return}const idx=ships.findIndex(s=>s.id===ship.id);if(idx>=0)ships[idx]=ship;else ships.unshift(ship);activeShipId=ship.id;localStorage.setItem("survey_ships_v1",JSON.stringify(ships));renderShipList();alert("Schip opgeslagen.")}
+function newShip(){activeShipId=null;fillShipForm(null)}
+function deleteShip(){if(!activeShipId){alert("Geen schip geselecteerd.");return}ships=ships.filter(s=>s.id!==activeShipId);localStorage.setItem("survey_ships_v1",JSON.stringify(ships));activeShipId=null;fillShipForm(null);renderShipList();alert("Schip verwijderd.")}
+function renderShipList(){const box=document.getElementById("shipList");box.innerHTML="";if(!ships.length){box.innerHTML='<div class="ship-item"><strong>Nog geen schepen</strong><span>Voeg rechts je eerste schip toe.</span></div>';return}ships.forEach(ship=>{const div=document.createElement("div");div.className="ship-item"+(ship.id===activeShipId?" active":"");div.innerHTML=`<strong>${ship.name||"Onbekend schip"}</strong><span>${ship.operator||"Geen operator"} · ${ship.tanks||"?"} tanks · ${ship.coating||"geen coating"}</span>`;div.onclick=()=>fillShipForm(ship);box.appendChild(div)})}
+if(!ships.length){ships=[{id:"demo1",name:"VARKAN EDGE",imo:"",callsign:"",operator:"",contact:"",email:"",phone:"",tanks:"12",coating:"EPICON T-800",heating:"Unknown",tankDetails:"1-12 Epicon T-800",capacity:"",notes:"Demo schip"}];localStorage.setItem("survey_ships_v1",JSON.stringify(ships))}
+runCompatibility();runCleaningAdvisor();calculateMaxFill();calculateUllage();calculateLineContent();renderShipList();fillShipForm(ships[0]||null);
 </script>
-</body>
-</html>
+</body></html>
