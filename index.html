@@ -1,267 +1,579 @@
-
 <!DOCTYPE html>
 <html lang="nl">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>Survey App Prototype v6 Database</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<title>Island Trader</title>
 <style>
-:root{--bg:#16181c;--panel:#20242a;--panel2:#262b33;--line:#343b45;--text:#eef2f7;--muted:#aeb7c3;--ok:#1f8f4e;--warn:#c58b1a;--bad:#a33a3a;--unk:#5d6470;--chip:#2d333d;--shadow:0 10px 30px rgba(0,0,0,.28)}
-*{box-sizing:border-box}html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}body{min-height:100vh}
-.app{display:grid;grid-template-columns:255px 1fr;min-height:100vh}.sidebar{background:linear-gradient(180deg,#1a1d22 0%,#15181c 100%);border-right:1px solid var(--line);padding:14px;overflow:auto}
-.brand{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:14px;box-shadow:var(--shadow)}
-.logo{width:38px;height:38px;border-radius:12px;background:linear-gradient(145deg,#2d3a4d,#1c2530);display:grid;place-items:center;font-weight:700;color:#dce7ff;border:1px solid #3a4553}
-.brand h1{font-size:15px;margin:0}.brand p{margin:2px 0 0;color:var(--muted);font-size:12px}.group-title{color:#8d97a5;font-size:11px;text-transform:uppercase;letter-spacing:1.1px;margin:16px 8px 8px}
-.nav-btn,.mobile-nav-btn{width:100%;text-align:left;border:1px solid var(--line);background:var(--panel);color:var(--text);padding:11px 12px;margin:0 0 8px;border-radius:12px;cursor:pointer;font-size:14px}
-.nav-btn:hover,.mobile-nav-btn:hover{background:#252a31}.nav-btn.active,.mobile-nav-btn.active{background:#29313b;border-color:#4a586a}
-.main{overflow:auto;padding:16px 16px 90px}.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
-.titlebox{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px 16px;flex:1}.titlebox h2{margin:0 0 4px;font-size:20px}.titlebox p{margin:0;color:var(--muted);font-size:13px}
-.quick{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.pill{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px;color:var(--muted);font-size:13px}
-.mobile-menu-wrap{display:none;margin-bottom:14px}.mobile-menu-toggle{width:100%;display:flex;justify-content:space-between;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;color:var(--text);font-size:15px;font-weight:600;cursor:pointer}
-.mobile-menu{display:none;margin-top:10px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:10px;box-shadow:var(--shadow)}.mobile-menu.open{display:block}.mobile-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:var(--shadow)}.card h3{margin:0 0 10px;font-size:15px}
-.sub{color:var(--muted);font-size:12px;margin-top:-4px;margin-bottom:10px}.span-12{grid-column:span 12}.span-8{grid-column:span 8}.span-7{grid-column:span 7}.span-6{grid-column:span 6}.span-5{grid-column:span 5}.span-4{grid-column:span 4}
-.row{display:grid;grid-template-columns:repeat(12,1fr);gap:10px}.field{grid-column:span 12}.field.half{grid-column:span 6}.field.third{grid-column:span 4}
-label{display:block;font-size:12px;color:var(--muted);margin:0 0 5px 2px}
-input,select,textarea,button{width:100%;border-radius:12px;border:1px solid #404955;background:var(--panel2);color:var(--text);padding:11px 12px;font-size:14px;outline:none}
-textarea{min-height:100px;resize:vertical}input:focus,select:focus,textarea:focus{border-color:#6f8bb0}
-.btn{cursor:pointer;background:#2e3743;border:1px solid #516073;font-weight:600}.btn:hover{background:#36414e}.btn.accent{background:#2c4d76;border-color:#4c79b2}.btn.red{background:#5d2d2d;border-color:#8a4444}
-.chips{display:flex;gap:8px;flex-wrap:wrap}.chip{background:var(--chip);border:1px solid var(--line);padding:8px 10px;border-radius:999px;color:#d4dce6;font-size:12px}
-.status{display:flex;align-items:center;gap:10px;padding:12px;border-radius:14px;border:1px solid var(--line);background:#222831;margin-top:10px}
-.dot{width:12px;height:12px;border-radius:50%}.ok .dot{background:var(--ok)} .warn .dot{background:var(--warn)} .bad .dot{background:var(--bad)} .unk .dot{background:var(--unk)}
-.status strong{display:block}.status span{font-size:12px;color:var(--muted)}.mini-list{display:grid;gap:8px}
-.mini-item{display:flex;justify-content:space-between;gap:12px;background:var(--panel2);border:1px solid var(--line);padding:10px 12px;border-radius:12px;font-size:13px}
-.footer-note{position:fixed;left:271px;right:16px;bottom:14px;background:rgba(32,36,42,.92);backdrop-filter:blur(8px);border:1px solid var(--line);color:var(--muted);padding:10px 14px;border-radius:14px;font-size:12px}
-.hidden{display:none}.listbox{display:grid;gap:8px;max-height:420px;overflow:auto}.ship-item,.db-item{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;cursor:pointer}
-.ship-item.active,.db-item.active{border-color:#6f8bb0;background:#303743}.ship-item strong,.db-item strong{display:block;font-size:14px}.ship-item span,.db-item span{font-size:12px;color:var(--muted)}
-.small{font-size:12px;color:var(--muted)}.steps{display:grid;gap:8px}.step{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:13px}
-@media (max-width:980px){.app{grid-template-columns:1fr}.sidebar{display:none}.main{padding-bottom:110px}.footer-note{left:12px;right:12px}.span-8,.span-7,.span-6,.span-5,.span-4,.field.half,.field.third{grid-column:span 12}.topbar{align-items:stretch;flex-direction:column}.quick{justify-content:flex-start}.mobile-menu-wrap{display:block}}
-@media (max-width:600px){.mobile-grid{grid-template-columns:1fr}.mini-item{flex-direction:column;align-items:flex-start}}
+  :root{
+    --bg:#0b1116;
+    --panel:rgba(8,15,22,.88);
+    --panel2:rgba(14,24,35,.92);
+    --line:rgba(255,255,255,.08);
+    --text:#ebf3ff;
+    --muted:#9bb0c9;
+    --gold:#f1c86b;
+    --green:#59d69d;
+    --red:#ff7d7d;
+    --blue:#7cc7ff;
+    --shadow:0 12px 30px rgba(0,0,0,.35);
+    --radius:18px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;height:100%;background:linear-gradient(180deg,#0a1016,#0d151d 45%,#0b1218);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--text);overflow:hidden}
+  body{touch-action:manipulation}
+  #app{position:relative;width:100vw;height:100vh;overflow:hidden}
+  canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+  .panel{
+    position:absolute;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    background:var(--panel);border:1px solid var(--line);box-shadow:var(--shadow);border-radius:var(--radius);
+  }
+  #topbar{left:10px;right:10px;top:10px;height:70px;display:flex;align-items:center;gap:10px;padding:10px 12px;z-index:5}
+  .stat{min-width:0;padding:8px 10px;border-radius:14px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05)}
+  .label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+  .value{font-weight:700;font-size:18px;white-space:nowrap}
+  .grow{flex:1}
+  #leftpanel{left:10px;bottom:10px;width:320px;max-width:calc(100vw - 20px);padding:14px;z-index:5;max-height:56vh;overflow:auto}
+  #rightpanel{right:10px;bottom:10px;width:330px;max-width:calc(100vw - 20px);padding:14px;z-index:5;max-height:56vh;overflow:auto}
+  h2,h3{margin:0 0 8px 0}
+  h2{font-size:18px}
+  h3{font-size:15px;color:var(--muted);font-weight:600}
+  .sub{font-size:13px;color:var(--muted);line-height:1.35}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .btn,.mini{
+    appearance:none;border:none;color:var(--text);background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.04));
+    border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:11px 12px;font-weight:700;font-size:14px;
+    box-shadow:0 6px 18px rgba(0,0,0,.18)
+  }
+  .btn:active,.mini:active{transform:scale(.98)}
+  .mini{padding:8px 10px;font-size:13px}
+  .good{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;padding:9px 0;border-top:1px solid rgba(255,255,255,.05)}
+  .good:first-child{border-top:none}
+  .pill{padding:5px 8px;border-radius:999px;font-size:12px;font-weight:700;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.07)}
+  .priceUp{color:var(--red)} .priceDown{color:var(--green)} .priceNeutral{color:var(--blue)}
+  .cargoRow{display:grid;grid-template-columns:1fr auto;gap:8px;padding:8px 0;border-top:1px solid rgba(255,255,255,.05)}
+  .cargoRow:first-child{border-top:none}
+  .section{margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.06)}
+  .tag{display:inline-block;padding:4px 8px;border-radius:999px;background:rgba(124,199,255,.08);border:1px solid rgba(124,199,255,.18);font-size:12px;color:#cce9ff}
+  #toast{position:absolute;left:50%;transform:translateX(-50%);top:90px;z-index:8;background:rgba(11,18,24,.94);border:1px solid rgba(255,255,255,.08);padding:10px 14px;border-radius:999px;opacity:0;pointer-events:none;transition:.25s}
+  #help{position:absolute;left:10px;right:10px;top:90px;z-index:4;padding:10px 12px;text-align:center;background:rgba(12,19,28,.72);border:1px solid rgba(255,255,255,.06);border-radius:14px;color:var(--muted);font-size:13px}
+  .small{font-size:12px;color:var(--muted)}
+  @media (max-width: 900px){
+    #leftpanel,#rightpanel{width:calc(50vw - 15px);max-height:48vh}
+    #topbar{height:auto;flex-wrap:wrap}
+  }
+  @media (max-width: 680px){
+    #topbar{left:8px;right:8px;top:8px;padding:8px 10px;gap:8px}
+    .value{font-size:16px}
+    #help{top:116px;left:8px;right:8px}
+    #leftpanel{left:8px;right:8px;bottom:8px;width:auto;max-height:42vh}
+    #rightpanel{display:none}
+    #leftpanel.compact{max-height:28vh}
+  }
 </style>
 </head>
 <body>
-<div class="app">
-<aside class="sidebar">
-<div class="brand"><div class="logo">SV</div><div><h1>Survey App</h1><p>Lading + berekeningen + database</p></div></div>
-<div class="group-title">Hoofdmenu</div>
-<button class="nav-btn active" data-section="dashboard">Overzicht</button>
-<button class="nav-btn" data-section="lading">Lading</button>
-<button class="nav-btn" data-section="berekeningen">Berekeningen</button>
-<button class="nav-btn" data-section="ships">Schepen</button>
-<button class="nav-btn" data-section="notes">Notes / Rapport</button>
-<div class="group-title">Lading</div>
-<button class="nav-btn" data-section="compatibility">Compatibility</button>
-<button class="nav-btn" data-section="cargo">Cargo</button>
-<button class="nav-btn" data-section="coatings">Coatings</button>
-<button class="nav-btn" data-section="tankcheck">Tank Check</button>
-<button class="nav-btn" data-section="previous">Previous Cargo</button>
-<button class="nav-btn" data-section="cleaning">Tank Cleaning</button>
-<button class="nav-btn" data-section="inspection">Inspectie</button>
-<div class="group-title">Berekeningen</div>
-<button class="nav-btn" data-section="vcf">VCF</button>
-<button class="nav-btn" data-section="maxfill">Max Fill</button>
-<button class="nav-btn" data-section="ullage">Ullage</button>
-<button class="nav-btn" data-section="linecontent">Line Content</button>
-</aside>
-
-<main class="main">
-<div class="mobile-menu-wrap">
-<button class="mobile-menu-toggle" onclick="toggleMobileMenu()"><span>Menu openen</span><span id="mobileArrow">▾</span></button>
-<div class="mobile-menu" id="mobileMenu"><div class="mobile-grid">
-<button class="mobile-nav-btn active" data-section="dashboard">Overzicht</button>
-<button class="mobile-nav-btn" data-section="lading">Lading</button>
-<button class="mobile-nav-btn" data-section="berekeningen">Berekeningen</button>
-<button class="mobile-nav-btn" data-section="ships">Schepen</button>
-<button class="mobile-nav-btn" data-section="compatibility">Compatibility</button>
-<button class="mobile-nav-btn" data-section="cargo">Cargo</button>
-<button class="mobile-nav-btn" data-section="coatings">Coatings</button>
-<button class="mobile-nav-btn" data-section="tankcheck">Tank Check</button>
-<button class="mobile-nav-btn" data-section="previous">Previous Cargo</button>
-<button class="mobile-nav-btn" data-section="cleaning">Tank Cleaning</button>
-<button class="mobile-nav-btn" data-section="inspection">Inspectie</button>
-<button class="mobile-nav-btn" data-section="vcf">VCF</button>
-<button class="mobile-nav-btn" data-section="maxfill">Max Fill</button>
-<button class="mobile-nav-btn" data-section="ullage">Ullage</button>
-<button class="mobile-nav-btn" data-section="linecontent">Line Content</button>
-<button class="mobile-nav-btn" data-section="notes">Notes / Rapport</button>
-</div></div></div>
-
-<div class="topbar"><div class="titlebox"><h2 id="pageTitle">Overzicht</h2><p id="pageSub">Nu met cargo- en coatingdatabase die compatibility en cleaning slimmer maakt.</p></div><div class="quick"><div class="pill">Cargo DB</div><div class="pill">Coating DB</div><div class="pill">Smarter checks</div></div></div>
-
-<section id="dashboard" class="page"><div class="grid">
-<div class="card span-6"><h3>Nieuw toegevoegd</h3><div class="mini-list">
-<div class="mini-item"><span>Cargo database</span><span>Productgroep, risico’s, cleaning profile</span></div>
-<div class="mini-item"><span>Coating database</span><span>Type, notities, resistance tags</span></div>
-<div class="mini-item"><span>Compatibility</span><span>Leest nu uit databases</span></div>
-<div class="mini-item"><span>Cleaning advisor</span><span>Gebaseerd op cleaning profiles</span></div>
-</div></div>
-<div class="card span-6"><h3>Voorbeelden in database</h3><div class="chips">
-<div class="chip">Diesel / GTL</div><div class="chip">Gasoline</div><div class="chip">Jet Fuel</div><div class="chip">Methanol</div><div class="chip">FAME / Biofuel</div><div class="chip">Veg Oil</div><div class="chip">Caustic Soda</div><div class="chip">EPICON T-800</div><div class="chip">MarineLine</div><div class="chip">Zinc Silicate</div>
-</div></div>
-</div></section>
-
-<section id="ships" class="page hidden"><div class="grid">
-<div class="card span-4"><h3>Schepen</h3><div class="sub">Toegevoegde schepen. Klik om te laden en aan te passen.</div><div id="shipList" class="listbox"></div></div>
-<div class="card span-8"><h3>Schip toevoegen / aanpassen</h3><div class="row">
-<div class="field third"><label>Vessel name</label><input id="shipName" placeholder="Bijv. VARKAN EDGE"></div>
-<div class="field third"><label>IMO</label><input id="shipImo" placeholder="IMO number"></div>
-<div class="field third"><label>Call sign</label><input id="shipCallsign" placeholder="Call sign"></div>
-<div class="field half"><label>Operator / company</label><input id="shipOperator" placeholder="Operator / owner"></div>
-<div class="field half"><label>Contact person</label><input id="shipContact" placeholder="Naam contactpersoon"></div>
-<div class="field half"><label>Email</label><input id="shipEmail" placeholder="email@company.com"></div>
-<div class="field half"><label>Telefoonnummer</label><input id="shipPhone" placeholder="+31..."></div>
-<div class="field third"><label>Aantal tanks</label><input id="shipTanks" placeholder="Bijv. 12"></div>
-<div class="field third"><label>Standaard coating</label><input id="shipCoating" placeholder="Bijv. EPICON T-800"></div>
-<div class="field third"><label>Heating</label><select id="shipHeating"><option>Unknown</option><option>Yes</option><option>No</option></select></div>
-<div class="field half"><label>Tank coating details</label><input id="shipTankDetails" placeholder="Bijv. 1-6 Epicon / 7-12 MarineLine"></div>
-<div class="field half"><label>Capaciteit / bijzonder</label><input id="shipCapacity" placeholder="Bijv. 8x 3000 m³ + 4x 1500 m³"></div>
-<div class="field"><label>Vaste notities</label><textarea id="shipNotes"></textarea></div>
-</div><div class="row"><div class="field third"><button class="btn accent" onclick="saveShip()">Opslaan</button></div><div class="field third"><button class="btn" onclick="newShip()">Nieuw leeg formulier</button></div><div class="field third"><button class="btn red" onclick="deleteShip()">Verwijderen</button></div></div></div>
-</div></section>
-
-<section id="cargo" class="page hidden"><div class="grid">
-<div class="card span-4"><h3>Cargo database</h3><div class="sub">Klik om cargo te bekijken.</div><div id="cargoList" class="listbox"></div></div>
-<div class="card span-8"><h3>Cargo info</h3><div class="row">
-<div class="field half"><label>Naam</label><input id="cargoName" readonly></div>
-<div class="field half"><label>Groep</label><input id="cargoGroup" readonly></div>
-<div class="field half"><label>Cleaning profile</label><input id="cargoProfile" readonly></div>
-<div class="field half"><label>Max fill profile</label><input id="cargoExp" readonly></div>
-<div class="field"><label>Risico’s / notes</label><textarea id="cargoNotes" readonly></textarea></div>
-</div><div class="chips" id="cargoTags"></div></div>
-</div></section>
-
-<section id="coatings" class="page hidden"><div class="grid">
-<div class="card span-4"><h3>Coating database</h3><div class="sub">Klik om coating te bekijken.</div><div id="coatingList" class="listbox"></div></div>
-<div class="card span-8"><h3>Coating info</h3><div class="row">
-<div class="field half"><label>Naam</label><input id="coatName" readonly></div>
-<div class="field half"><label>Type</label><input id="coatType" readonly></div>
-<div class="field half"><label>Maker / status</label><input id="coatMaker" readonly></div>
-<div class="field half"><label>General note</label><input id="coatGeneral" readonly></div>
-<div class="field"><label>Beschrijving</label><textarea id="coatNotes" readonly></textarea></div>
-</div><div class="chips" id="coatTags"></div></div>
-</div></section>
-
-<section id="lading" class="page hidden"><div class="grid"><div class="card span-12"><h3>Lading overzicht</h3><div class="mini-list"><div class="mini-item"><span>Cargo</span><span>Database met profiel en risico’s</span></div><div class="mini-item"><span>Coatings</span><span>Database met resistance tags</span></div><div class="mini-item"><span>Compatibility</span><span>Automatisch uit data</span></div><div class="mini-item"><span>Cleaning</span><span>Profile based</span></div></div></div></div></section>
-<section id="berekeningen" class="page hidden"><div class="grid"><div class="card span-12"><h3>Berekeningen overzicht</h3><div class="mini-list"><div class="mini-item"><span>Max Fill</span><span>Gebruikt cargo profiel</span></div><div class="mini-item"><span>Ullage</span><span>Vrije ruimte / percentage gevuld</span></div><div class="mini-item"><span>Line Content</span><span>Leidinginhoud uit diameter + lengte</span></div></div></div></div></section>
-
-<section id="compatibility" class="page hidden"><div class="grid">
-<div class="card span-7"><h3>Compatibility Check</h3><div class="row">
-<div class="field half"><label>Cargo</label><select id="compatCargo"></select></div>
-<div class="field half"><label>Coating</label><select id="compatCoating"></select></div>
-<div class="field third"><label>Cleaning profile</label><input id="compatTemp" readonly></div>
-<div class="field third"><label>Water / dry</label><input id="compatWater" readonly></div>
-<div class="field third"><label>Coating note</label><input id="compatCleaning" readonly></div>
-</div><div id="compatStatus" class="status warn"><div class="dot"></div><div><strong id="compatTitle"></strong><span id="compatText"></span></div></div><div style="height:10px"></div><button class="btn accent" onclick="runCompatibility()">Check compatibility</button></div>
-<div class="card span-5"><h3>Snelle notities</h3><div class="chips" id="compatChips"></div><div style="height:10px"></div><label>Opmerking</label><textarea id="compatNote"></textarea><div style="height:10px"></div><button class="btn accent" onclick="copyCompatConclusion()">Copy conclusie</button></div>
-</div></section>
-
-<section id="tankcheck" class="page hidden"><div class="grid"><div class="card span-12"><h3>Tank Check</h3><textarea>Later koppelen aan gekozen schip + coating + cargo database.</textarea></div></div></section>
-<section id="previous" class="page hidden"><div class="grid"><div class="card span-12"><h3>Previous Cargo</h3><textarea>Previous cargo historie per tank.</textarea></div></div></section>
-
-<section id="cleaning" class="page hidden"><div class="grid">
-<div class="card span-7"><h3>Cleaning Advisor</h3><div class="sub">Previous en next cargo gebruiken nu cargo cleaning profiles.</div><div class="row">
-<div class="field half"><label>Previous cargo</label><select id="cleanPrev"></select></div>
-<div class="field half"><label>Next cargo</label><select id="cleanNext"></select></div>
-<div class="field half"><label>Cleaning level</label><select id="cleanLevel"><option>Auto</option><option>None</option><option>Hot water wash</option><option>Chemical wash</option><option>Chemical + rinse</option><option>Chemical + steam</option><option>Full cleaning (all)</option></select></div>
-<div class="field half"><label>Tank condition</label><select id="cleanCondition"><option>Normal</option><option>Dry tank required</option><option>Odour critical</option><option>Wall wash likely</option></select></div>
-</div><div style="height:10px"></div><button class="btn accent" onclick="runCleaningAdvisor()">Genereer cleaning advies</button></div>
-<div class="card span-5"><h3>Advies status</h3><div id="cleanStatus" class="status warn"><div class="dot"></div><div><strong id="cleanTitle">Cleaning required</strong><span id="cleanText">Kies previous en next cargo voor advies.</span></div></div><div style="height:10px"></div><div class="mini-list"><div class="mini-item"><span>Niveau</span><strong id="cleanSeverity">—</strong></div><div class="mini-item"><span>Wall wash</span><strong id="cleanWallWash">—</strong></div><div class="mini-item"><span>Dry tank</span><strong id="cleanDry">—</strong></div></div></div>
-<div class="card span-8"><h3>Cleaning steps</h3><div id="cleanSteps" class="steps"></div></div>
-<div class="card span-4"><h3>Cleaning report</h3><div class="chips" id="cleanTags"></div><div style="height:10px"></div><label>Cleaning report note</label><textarea id="cleanNote"></textarea><div style="height:10px"></div><button class="btn accent" onclick="copyCleaningReport()">Copy cleaning note</button></div>
-</div></section>
-
-<section id="inspection" class="page hidden"><div class="grid"><div class="card span-12"><h3>Inspectie</h3><textarea>Coating conditie / foto's / notes.</textarea></div></div></section>
-<section id="vcf" class="page hidden"><div class="grid"><div class="card span-12"><h3>VCF</h3><textarea>VCF module volgt.</textarea></div></div></section>
-
-<section id="maxfill" class="page hidden"><div class="grid">
-<div class="card span-8"><h3>Max Fill</h3><div class="row">
-<div class="field half"><label>Tank capaciteit (m³)</label><input id="maxCap" value="5000"></div>
-<div class="field half"><label>Product</label><select id="maxProduct"></select></div>
-<div class="field third"><label>Load temp (°C)</label><input id="maxLoadTemp" value="20"></div>
-<div class="field third"><label>Max temp (°C)</label><input id="maxHighTemp" value="35"></div>
-<div class="field third"><label>Expansion factor /°C</label><input id="maxFactor" placeholder="auto / manual"></div>
-</div><div style="height:10px"></div><button class="btn accent" onclick="calculateMaxFill()">Bereken max fill</button></div>
-<div class="card span-4"><h3>Output</h3><div class="mini-list"><div class="mini-item"><span>Max volume</span><strong id="maxVolumeOut">—</strong></div><div class="mini-item"><span>Max fill</span><strong id="maxFillOut">—</strong></div><div class="mini-item"><span>Benodigde ullage</span><strong id="maxUllageOut">—</strong></div><div class="mini-item"><span>Factor</span><strong id="maxFactorOut">—</strong></div></div></div>
-</div></section>
-
-<section id="ullage" class="page hidden"><div class="grid">
-<div class="card span-7"><h3>Ullage</h3><div class="row"><div class="field half"><label>Tank capacity (m³)</label><input id="ullCap" value="5000"></div><div class="field half"><label>Loaded volume (m³)</label><input id="ullLoaded" value="4870"></div></div><div style="height:10px"></div><button class="btn accent" onclick="calculateUllage()">Bereken</button></div>
-<div class="card span-5"><h3>Output</h3><div class="mini-list"><div class="mini-item"><span>Fill %</span><strong id="ullFillOut">—</strong></div><div class="mini-item"><span>Free space</span><strong id="ullFreeOut">—</strong></div></div></div>
-</div></section>
-
-<section id="linecontent" class="page hidden"><div class="grid">
-<div class="card span-7"><h3>Line Content</h3><div class="row"><div class="field half"><label>Diameter</label><input id="lineDiameter" value="6"></div><div class="field half"><label>Lengte (m)</label><input id="lineLength" value="120"></div><div class="field half"><label>Unit</label><select id="lineUnit"><option>Inch</option><option>mm</option></select></div><div class="field half"><label>Extra</label><input></div></div><div style="height:10px"></div><button class="btn accent" onclick="calculateLineContent()">Bereken line content</button></div>
-<div class="card span-5"><h3>Output</h3><div class="mini-item"><span>Volume</span><strong id="lineOut">—</strong></div></div>
-</div></section>
-
-<section id="notes" class="page hidden"><div class="grid"><div class="card span-12"><h3>Notes / Rapport</h3><textarea>Rapporttekst en standaard zinnen.</textarea></div></div></section>
-</main></div>
-
-<div class="footer-note">Cargo- en coatingdatabase toegevoegd. Compatibility en cleaning gebruiken nu dezelfde data.</div>
-
+<div id="app">
+  <canvas id="game"></canvas>
+  <div id="topbar" class="panel">
+    <div>
+      <div class="label">Island Trader</div>
+      <div class="value">Klik & vaar</div>
+    </div>
+    <div class="stat"><div class="label">Geld</div><div class="value" id="moneyVal">€ 0</div></div>
+    <div class="stat"><div class="label">Cargo</div><div class="value" id="cargoVal">0 / 0</div></div>
+    <div class="stat"><div class="label">Dag</div><div class="value" id="dayVal">1</div></div>
+    <div class="stat grow"><div class="label">Locatie</div><div class="value" id="locationVal">Op zee</div></div>
+    <button class="mini" id="regenBtn">Nieuwe wereld</button>
+  </div>
+  <div id="help">Tik op een haven om te varen. In dorpen koop je goedkoop, in havens verkoop je meestal beter. Elke stop laat de markt wat verschuiven.</div>
+  <div id="toast"></div>
+  <div id="leftpanel" class="panel compact">
+    <h2 id="placeName">Geen selectie</h2>
+    <div class="sub" id="placeDesc">Tik op een haven of dorp op de kaart.</div>
+    <div class="section" id="actions"></div>
+    <div class="section">
+      <h3>Jouw cargo</h3>
+      <div id="cargoList" class="small">Leeg ruim.</div>
+    </div>
+  </div>
+  <div id="rightpanel" class="panel">
+    <h2>Markttips</h2>
+    <div class="sub">Elke plaats heeft eigen prijzen. Koop laag, vaar, verkoop hoog.</div>
+    <div class="section" id="tips"></div>
+    <div class="section">
+      <h3>Spelregels</h3>
+      <div class="small">• Dorpen zijn vaak sterk in 1 of 2 goederen.<br>• Havens betalen vaker meer voor zeldzame spullen.<br>• Je schip heeft beperkte laadruimte.<br>• Nieuwe wereld maakt verse eilanden, havens en markten.</div>
+    </div>
+  </div>
+</div>
 <script>
-const cargoDB=[
-{name:"Diesel / GTL",group:"CPP",profile:"cpp",expansion:0.00085,water:"No special",tags:["CPP","standard wash","expansion"],notes:"General distillate range cargo. Usually standard CPP cleaning unless next cargo is high spec."},
-{name:"Gasoline",group:"CPP",profile:"odour",expansion:0.00120,water:"No special",tags:["CPP","odour","high expansion"],notes:"High odour and high expansion cargo. Transition to sensitive cargo needs more cleaning."},
-{name:"Jet Fuel",group:"CPP",profile:"clean",expansion:0.00095,water:"Low water / high cleanliness",tags:["CPP","clean","spec cargo"],notes:"Needs good cleanliness and low water/contamination."},
-{name:"Methanol",group:"Chemical",profile:"methanol",expansion:0.00118,water:"Dry tank",tags:["chemical","dry tank","wall wash"],notes:"Typically requires very clean and dry tank. Wall wash may apply."},
-{name:"FAME / Biofuel",group:"Biofuel",profile:"fame",expansion:0.00080,water:"Low water preferred",tags:["biofuel","residue risk"],notes:"Can leave residues and may require chemical wash for next cargo."},
-{name:"Veg Oil",group:"Edible/Oil",profile:"veg",expansion:0.00070,water:"No special",tags:["sticky","alkaline wash"],notes:"Sticky residues. Often higher cleaning effort for transition."},
-{name:"Caustic Soda",group:"Chemical",profile:"caustic",expansion:0.00060,water:"Rinse thoroughly",tags:["alkali","rinse","dry for next sensitive cargo"],notes:"Rinse thoroughly. If next cargo is sensitive, dry tank becomes important."}
-];
-const coatingDB=[
-{name:"EPICON T-800",type:"Epoxy phenolic",maker:"CMP",general:"Widely used",tags:["cpp","methanol ok","alkali ok","maker list"],notes:"High-build epoxy phenolic. Indicative resistance for CPP, methanol, biofuels, alkalis and weak acids. Always confirm maker list."},
-{name:"MarineLine",type:"Advanced tank coating",maker:"Specialist",general:"High performance",tags:["cpp","chemical","methanol","solvents"],notes:"High chemical resistance tank coating, often used for broad cargo range."},
-{name:"Zinc Silicate",type:"Zinc silicate",maker:"Generic",general:"Limited broad use",tags:["dry cargo caution","not methanol"],notes:"May be unsuitable for some sensitive/chemical cargoes. Check maker list carefully."},
-{name:"Epoxy Phenolic",type:"Epoxy phenolic",maker:"Generic",general:"Broad product range",tags:["cpp","chemical","maker list"],notes:"Generic epoxy phenolic category. Specific resistance depends on maker and product."}
-];
-const meta={dashboard:["Overzicht","Nu met cargo- en coatingdatabase die compatibility en cleaning slimmer maakt."],lading:["Lading","Alles rondom cargo, coatings, cleaning en tank suitability."],berekeningen:["Berekeningen","Alle reken tools voor volume, max fill, ullage en line content."],ships:["Schepen","Schepen toevoegen, aanpassen en lokaal opslaan."],compatibility:["Compatibility","Cargo ↔ coating check uit database."],cargo:["Cargo","Cargo database en productprofielen."],coatings:["Coatings","Coating database en resistance tags."],tankcheck:["Tank Check","Later koppelen aan gekozen schip + cargo/coating db."],previous:["Previous Cargo","Historie per tank."],cleaning:["Tank Cleaning","Cleaning advisor gebruikt cargo profielen."],inspection:["Inspectie","Coating conditie en tank observations."],vcf:["VCF","ASTM blok voor density/temperature correcties."],maxfill:["Max Fill","Gebruikt cargo expansion factor."],ullage:["Ullage","Vrije ruimte en fill percentage."],linecontent:["Line Content","Leidinginhoud uit diameter en lengte."],notes:["Notes / Rapport","Conclusies en standaardzinnen."]};
-const pages=document.querySelectorAll(".page"),navs=document.querySelectorAll(".nav-btn, .mobile-nav-btn"),title=document.getElementById("pageTitle"),sub=document.getElementById("pageSub");
-function openSection(id){pages.forEach(p=>p.classList.add("hidden"));const page=document.getElementById(id);if(page)page.classList.remove("hidden");navs.forEach(n=>n.classList.toggle("active",n.dataset.section===id));if(meta[id]){title.textContent=meta[id][0];sub.textContent=meta[id][1]}const mobileMenu=document.getElementById("mobileMenu");if(window.innerWidth<=980&&mobileMenu.classList.contains("open")){mobileMenu.classList.remove("open");document.getElementById("mobileArrow").textContent="▾"}window.scrollTo({top:0,behavior:"smooth"})}
-navs.forEach(btn=>btn.addEventListener("click",()=>openSection(btn.dataset.section)));
-function toggleMobileMenu(){const menu=document.getElementById("mobileMenu"),arrow=document.getElementById("mobileArrow");menu.classList.toggle("open");arrow.textContent=menu.classList.contains("open")?"▴":"▾"}
-function parseNum(v){return parseFloat(String(v??"").replace(",",".").trim())}function fmt(v,d=2){if(!isFinite(v))return"—";return v.toLocaleString("nl-NL",{minimumFractionDigits:d,maximumFractionDigits:d})}function copyText(t){navigator.clipboard.writeText(t)}
-function cargoByName(name){return cargoDB.find(c=>c.name===name)} function coatingByName(name){return coatingDB.find(c=>c.name===name)}
-function populateSelect(id,items){const el=document.getElementById(id);el.innerHTML="";items.forEach(i=>{const o=document.createElement("option");o.textContent=i.name;o.value=i.name;el.appendChild(o)})}
-function renderDBLists(){const cargoList=document.getElementById("cargoList"),coatList=document.getElementById("coatingList");cargoList.innerHTML="";coatList.innerHTML="";
-cargoDB.forEach((c,i)=>{const d=document.createElement("div");d.className="db-item"+(i===0?" active":"");d.innerHTML=`<strong>${c.name}</strong><span>${c.group} · ${c.profile}</span>`;d.onclick=()=>showCargo(c.name);cargoList.appendChild(d)});
-coatingDB.forEach((c,i)=>{const d=document.createElement("div");d.className="db-item"+(i===0?" active":"");d.innerHTML=`<strong>${c.name}</strong><span>${c.type} · ${c.maker}</span>`;d.onclick=()=>showCoating(c.name);coatList.appendChild(d)});
-}
-function showCargo(name){const c=cargoByName(name);if(!c)return;document.getElementById("cargoName").value=c.name;document.getElementById("cargoGroup").value=c.group;document.getElementById("cargoProfile").value=c.profile;document.getElementById("cargoExp").value=c.expansion.toFixed(5)+" /°C";document.getElementById("cargoNotes").value=c.notes;const tags=document.getElementById("cargoTags");tags.innerHTML="";c.tags.forEach(t=>{const d=document.createElement("div");d.className="chip";d.textContent=t;tags.appendChild(d)});document.querySelectorAll("#cargoList .db-item").forEach(el=>el.classList.toggle("active",el.querySelector("strong").textContent===name))}
-function showCoating(name){const c=coatingByName(name);if(!c)return;document.getElementById("coatName").value=c.name;document.getElementById("coatType").value=c.type;document.getElementById("coatMaker").value=c.maker;document.getElementById("coatGeneral").value=c.general;document.getElementById("coatNotes").value=c.notes;const tags=document.getElementById("coatTags");tags.innerHTML="";c.tags.forEach(t=>{const d=document.createElement("div");d.className="chip";d.textContent=t;tags.appendChild(d)});document.querySelectorAll("#coatingList .db-item").forEach(el=>el.classList.toggle("active",el.querySelector("strong").textContent===name))}
-function runCompatibility(){const cargo=cargoByName(document.getElementById("compatCargo").value),coat=coatingByName(document.getElementById("compatCoating").value);let status="warn",title="Conditioneel",text="Check maker list.",chips=[];if(cargo&&coat){if(coat.tags.includes("not methanol")&&cargo.profile==="methanol"){status="bad";title="Niet toegestaan";text="Deze coating heeft in prototype geen methanol-acceptatie."}
-else if(coat.tags.includes("methanol ok")&&cargo.profile==="methanol"){status="warn";title="Conditioneel toegestaan";text="Methanol mogelijk, maar droge tank en maker list blijven belangrijk."}
-else if(coat.tags.includes("cpp")&&["cpp","odour","clean","fame"].includes(cargo.profile)){status="ok";title="Toegestaan";text="Indicatief passend binnen product range, mits specificatie akkoord."}
-else if(coat.tags.includes("chemical")&&["methanol","caustic"].includes(cargo.profile)){status="ok";title="Toegestaan";text="Indicatief geschikt voor chemical/product service, maker list blijft leidend."}
-else {status="unk";title="Onbekend";text="Geen vaste match in prototype. Check maker list."}
-chips=[...cargo.tags.slice(0,3),...coat.tags.slice(0,3)];
-document.getElementById("compatTemp").value=cargo.profile;
-document.getElementById("compatWater").value=cargo.water;
-document.getElementById("compatCleaning").value=coat.general;
-} else {document.getElementById("compatTemp").value="—";document.getElementById("compatWater").value="—";document.getElementById("compatCleaning").value="—"}
-document.getElementById("compatStatus").className="status "+status;document.getElementById("compatTitle").textContent=title;document.getElementById("compatText").textContent=text;const chipsEl=document.getElementById("compatChips");chipsEl.innerHTML="";chips.forEach(c=>{const d=document.createElement("div");d.className="chip";d.textContent=c;chipsEl.appendChild(d)})}
-function copyCompatConclusion(){const cargo=document.getElementById("compatCargo").value,coating=document.getElementById("compatCoating").value,ttl=document.getElementById("compatTitle").textContent,note=document.getElementById("compatNote").value.trim();copyText(`${cargo} / ${coating}: ${ttl}. ${document.getElementById("compatText").textContent}${note ? " Notes: "+note : ""}`)}
-function cleaningBase(prev,next){const p=cargoByName(prev),n=cargoByName(next);if(!p||!n)return null;
-if(n.profile==="methanol"){return{status:"warn",title:"High cleaning required",text:"Methanol als next cargo vraagt hoge reinigingsstandaard.",severity:"High",wallWash:"Likely",dry:"Yes",steps:["Hot water wash","Chemical wash","Fresh water rinse","Drying / mopping","Wall wash if required"],tags:["methanol","dry tank","wall wash"],report:`Previous ${prev} to methanol: hot wash, chemical wash, rinse, dry tank and likely wall wash.`}}
-if(p.profile==="fame"||p.profile==="veg"){return{status:"warn",title:"Chemical wash advised",text:"Residue/sticky previous cargo verhoogt cleaning level.",severity:"Medium",wallWash:"Possible",dry:"Preferred",steps:["Hot water wash","Chemical wash","Fresh water rinse","Final inspect"],tags:["residue risk","chemical wash"],report:`Previous ${prev} to ${next}: hot wash, chemical wash and rinse advised due to residue risk.`}}
-if(p.profile==="caustic"&&n.profile!=="caustic"){return{status:"warn",title:"Rinse critical",text:"Caustic residues volledig verwijderen.",severity:"Medium-High",wallWash:"Check spec",dry:n.profile==="clean"?"Yes":"Preferred",steps:["Fresh water rinse","Repeat rinse if needed","Drying if required","Final inspect"],tags:["rinse","caustic"],report:`Previous caustic to ${next}: thorough fresh water rinse required.`}}
-if(p.profile==="odour"&&n.profile==="clean"){return{status:"warn",title:"Odour control required",text:"Odour-sensitive transition.",severity:"Medium-High",wallWash:"Possible",dry:"Preferred",steps:["Hot water wash","Chemical wash if needed","Steaming","Final inspect"],tags:["odour","spec cargo"],report:`Previous ${prev} to ${next}: odour control required, consider steaming.`}}
-return{status:"ok",title:"Standard cleaning",text:"Standaard wash meestal voldoende in prototype.",severity:"Low-Medium",wallWash:"Normally no",dry:"No",steps:["Hot water wash","Final drain / inspect"],tags:["standard wash"],report:`Previous ${prev} to ${next}: standard hot water wash and final inspection.`}}
-function forceOverride(base,level,condition){let steps=[...base.steps],severity=base.severity;if(level==="Hot water wash")steps=["Hot water wash","Final drain / inspect"];if(level==="Chemical wash")steps=["Chemical wash","Final drain / inspect"];if(level==="Chemical + rinse")steps=["Chemical wash","Fresh water rinse","Final drain / inspect"];if(level==="Chemical + steam")steps=["Chemical wash","Steaming","Final drain / inspect"];if(level==="Full cleaning (all)")steps=["Hot water wash","Chemical wash","Fresh water rinse","Steaming","Drying / mopping","Wall wash if required"];if(level!=="Auto"&&level!=="None")severity="Manual";if(level==="None"){steps=["No cleaning selected"];severity="Manual"}let dry=base.dry,wallWash=base.wallWash;if(condition==="Dry tank required"){if(!steps.includes("Drying / mopping"))steps.push("Drying / mopping");dry="Yes"}if(condition==="Odour critical"){if(!steps.includes("Steaming"))steps.push("Steaming")}if(condition==="Wall wash likely"){if(!steps.includes("Wall wash"))steps.push("Wall wash");wallWash="Likely"}return{steps,severity,dry,wallWash}}
-function runCleaningAdvisor(){const prev=document.getElementById("cleanPrev").value,next=document.getElementById("cleanNext").value,level=document.getElementById("cleanLevel").value,condition=document.getElementById("cleanCondition").value;const base=cleaningBase(prev,next)||{status:"warn",title:"General cleaning advised",text:"Geen vaste match.",severity:"Medium",wallWash:"Check",dry:"If required",steps:["Hot water wash","Inspect"],tags:["general"],report:"General cleaning advised."};const adjusted=forceOverride(base,level,condition);document.getElementById("cleanStatus").className="status "+base.status;document.getElementById("cleanTitle").textContent=base.title;document.getElementById("cleanText").textContent=base.text;document.getElementById("cleanSeverity").textContent=adjusted.severity;document.getElementById("cleanWallWash").textContent=adjusted.wallWash;document.getElementById("cleanDry").textContent=adjusted.dry;const stepsEl=document.getElementById("cleanSteps");stepsEl.innerHTML="";adjusted.steps.forEach((s,i)=>{const d=document.createElement("div");d.className="step";d.textContent=(i+1)+". "+s;stepsEl.appendChild(d)});const tags=document.getElementById("cleanTags");tags.innerHTML="";base.tags.forEach(t=>{const d=document.createElement("div");d.className="chip";d.textContent=t;tags.appendChild(d)});if(!document.getElementById("cleanNote").value.trim())document.getElementById("cleanNote").value=base.report}
-function copyCleaningReport(){const prev=document.getElementById("cleanPrev").value,next=document.getElementById("cleanNext").value,steps=Array.from(document.querySelectorAll("#cleanSteps .step")).map(el=>el.textContent.replace(/^\d+\.\s/,"")),extra=document.getElementById("cleanNote").value.trim();copyText(`Cleaning advice ${prev} to ${next}: ${steps.join(", ")}.${extra ? " Notes: "+extra : ""}`)}
-function calculateMaxFill(){const cap=parseNum(document.getElementById("maxCap").value),loadT=parseNum(document.getElementById("maxLoadTemp").value),maxT=parseNum(document.getElementById("maxHighTemp").value);let factor=parseNum(document.getElementById("maxFactor").value);if(!isFinite(factor)){const c=cargoByName(document.getElementById("maxProduct").value);factor=c?c.expansion:NaN}if(!isFinite(cap)||!isFinite(loadT)||!isFinite(maxT)||!isFinite(factor)||cap<=0){document.getElementById("maxVolumeOut").textContent="Ongeldig";document.getElementById("maxFillOut").textContent="Ongeldig";document.getElementById("maxUllageOut").textContent="Ongeldig";document.getElementById("maxFactorOut").textContent="Ongeldig";return}const deltaT=Math.max(0,maxT-loadT),maxVolumeAtLoad=cap/(1+factor*deltaT),ullageNeeded=cap-maxVolumeAtLoad,fillPct=(maxVolumeAtLoad/cap)*100;document.getElementById("maxVolumeOut").textContent=fmt(maxVolumeAtLoad,2)+" m³";document.getElementById("maxFillOut").textContent=fmt(fillPct,2)+" %";document.getElementById("maxUllageOut").textContent=fmt(ullageNeeded,2)+" m³";document.getElementById("maxFactorOut").textContent=factor.toFixed(5)+" /°C"}
-function calculateUllage(){const cap=parseNum(document.getElementById("ullCap").value),loaded=parseNum(document.getElementById("ullLoaded").value);if(!isFinite(cap)||!isFinite(loaded)||cap<=0){document.getElementById("ullFillOut").textContent="Ongeldig";document.getElementById("ullFreeOut").textContent="Ongeldig";return}document.getElementById("ullFillOut").textContent=fmt((loaded/cap)*100,2)+" %";document.getElementById("ullFreeOut").textContent=fmt(cap-loaded,2)+" m³"}
-function calculateLineContent(){const dia=parseNum(document.getElementById("lineDiameter").value),len=parseNum(document.getElementById("lineLength").value),unit=document.getElementById("lineUnit").value;if(!isFinite(dia)||!isFinite(len)||dia<=0||len<=0){document.getElementById("lineOut").textContent="Ongeldig";return}let diaM=unit==="Inch"?dia*0.0254:dia/1000;const volume=Math.PI*Math.pow(diaM/2,2)*len;document.getElementById("lineOut").textContent=fmt(volume,4)+" m³"}
-let ships=JSON.parse(localStorage.getItem("survey_ships_v1")||"[]"),activeShipId=null;
-function shipFormData(){return{id:activeShipId||Date.now().toString(),name:document.getElementById("shipName").value.trim(),imo:document.getElementById("shipImo").value.trim(),callsign:document.getElementById("shipCallsign").value.trim(),operator:document.getElementById("shipOperator").value.trim(),contact:document.getElementById("shipContact").value.trim(),email:document.getElementById("shipEmail").value.trim(),phone:document.getElementById("shipPhone").value.trim(),tanks:document.getElementById("shipTanks").value.trim(),coating:document.getElementById("shipCoating").value.trim(),heating:document.getElementById("shipHeating").value,tankDetails:document.getElementById("shipTankDetails").value.trim(),capacity:document.getElementById("shipCapacity").value.trim(),notes:document.getElementById("shipNotes").value.trim()}}
-function fillShipForm(ship){activeShipId=ship?.id||null;document.getElementById("shipName").value=ship?.name||"";document.getElementById("shipImo").value=ship?.imo||"";document.getElementById("shipCallsign").value=ship?.callsign||"";document.getElementById("shipOperator").value=ship?.operator||"";document.getElementById("shipContact").value=ship?.contact||"";document.getElementById("shipEmail").value=ship?.email||"";document.getElementById("shipPhone").value=ship?.phone||"";document.getElementById("shipTanks").value=ship?.tanks||"";document.getElementById("shipCoating").value=ship?.coating||"";document.getElementById("shipHeating").value=ship?.heating||"Unknown";document.getElementById("shipTankDetails").value=ship?.tankDetails||"";document.getElementById("shipCapacity").value=ship?.capacity||"";document.getElementById("shipNotes").value=ship?.notes||"";renderShipList()}
-function saveShip(){const ship=shipFormData();if(!ship.name){alert("Geef minimaal een vessel name op.");return}const idx=ships.findIndex(s=>s.id===ship.id);if(idx>=0)ships[idx]=ship;else ships.unshift(ship);activeShipId=ship.id;localStorage.setItem("survey_ships_v1",JSON.stringify(ships));renderShipList();alert("Schip opgeslagen.")}
-function newShip(){activeShipId=null;fillShipForm(null)}
-function deleteShip(){if(!activeShipId){alert("Geen schip geselecteerd.");return}ships=ships.filter(s=>s.id!==activeShipId);localStorage.setItem("survey_ships_v1",JSON.stringify(ships));activeShipId=null;fillShipForm(null);renderShipList();alert("Schip verwijderd.")}
-function renderShipList(){const box=document.getElementById("shipList");box.innerHTML="";if(!ships.length){box.innerHTML='<div class="ship-item"><strong>Nog geen schepen</strong><span>Voeg rechts je eerste schip toe.</span></div>';return}ships.forEach(ship=>{const div=document.createElement("div");div.className="ship-item"+(ship.id===activeShipId?" active":"");div.innerHTML=`<strong>${ship.name||"Onbekend schip"}</strong><span>${ship.operator||"Geen operator"} · ${ship.tanks||"?"} tanks · ${ship.coating||"geen coating"}</span>`;div.onclick=()=>fillShipForm(ship);box.appendChild(div)})}
-if(!ships.length){ships=[{id:"demo1",name:"VARKAN EDGE",imo:"",callsign:"",operator:"",contact:"",email:"",phone:"",tanks:"12",coating:"EPICON T-800",heating:"Unknown",tankDetails:"1-12 Epicon T-800",capacity:"",notes:"Demo schip"}];localStorage.setItem("survey_ships_v1",JSON.stringify(ships))}
-populateSelect("compatCargo",cargoDB);populateSelect("cleanPrev",cargoDB);populateSelect("cleanNext",cargoDB);populateSelect("maxProduct",cargoDB);populateSelect("compatCoating",coatingDB);
-renderDBLists();showCargo(cargoDB[0].name);showCoating(coatingDB[0].name);runCompatibility();runCleaningAdvisor();calculateMaxFill();calculateUllage();calculateLineContent();renderShipList();fillShipForm(ships[0]||null);
+(() => {
+  const canvas = document.getElementById('game');
+  const ctx = canvas.getContext('2d');
+  const moneyVal = document.getElementById('moneyVal');
+  const cargoVal = document.getElementById('cargoVal');
+  const dayVal = document.getElementById('dayVal');
+  const locationVal = document.getElementById('locationVal');
+  const placeName = document.getElementById('placeName');
+  const placeDesc = document.getElementById('placeDesc');
+  const actions = document.getElementById('actions');
+  const cargoList = document.getElementById('cargoList');
+  const tips = document.getElementById('tips');
+  const toast = document.getElementById('toast');
+  const leftpanel = document.getElementById('leftpanel');
+  const goods = [
+    {key:'hout', icon:'🪵'},
+    {key:'vis', icon:'🐟'},
+    {key:'kruiden', icon:'🌿'},
+    {key:'erts', icon:'⛏️'},
+    {key:'stof', icon:'🧵'}
+  ];
+  const villageNames = ['Rietdam','Ziltveen','Amberbaai','Mosdorp','Lindehaven','Koraalhoek','Stormveld','Zonmeer','Wolmkust','Saffierdorp'];
+  const portNames = ['Port Azure','North Dock','Iron Quay','Goldwater','Saltgate','Blue Anchorage','East Reach','Harbor Crown','Black Pier','Starhaven'];
+  const islandNames = ['Vosseneiland','Ziltrek','Koraalrug','Mistbank','Ijzerkaap','Amberklip','Lage Reef','Maangloed','Stormkrans','Zonklif'];
+
+  let W=0,H=0, DPR=Math.min(window.devicePixelRatio||1,2);
+  let world, selected = null, hovered = null;
+  const player = {
+    x: 0, y: 0, target: null, speed: 1.55,
+    money: 1200, cargo: {}, cargoMax: 24, day: 1, locationName: 'Op zee'
+  };
+
+  function resize(){
+    W = canvas.clientWidth = window.innerWidth;
+    H = canvas.clientHeight = window.innerHeight;
+    canvas.width = Math.floor(W*DPR);
+    canvas.height = Math.floor(H*DPR);
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+  }
+
+  function rand(a,b){ return a + Math.random()*(b-a); }
+  function randi(a,b){ return Math.floor(rand(a,b+1)); }
+  function choice(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+  function dist(a,b){ return Math.hypot(a.x-b.x,a.y-b.y); }
+  function fmt(v){ return '€ ' + Math.round(v).toLocaleString('nl-NL'); }
+  function totalCargo(){ return Object.values(player.cargo).reduce((a,b)=>a+b,0); }
+  function showToast(msg){ toast.textContent = msg; toast.style.opacity = 1; clearTimeout(showToast.t); showToast.t = setTimeout(()=>toast.style.opacity=0,1500); }
+
+  function generateIsland(cx, cy, baseR, points=32){
+    const pts=[];
+    for(let i=0;i<points;i++){
+      const a=(Math.PI*2*i)/points;
+      const noise = 0.72 + Math.random()*0.6 + 0.18*Math.sin(a*3 + Math.random()*3);
+      const r = baseR*noise;
+      pts.push({x:cx + Math.cos(a)*r, y:cy + Math.sin(a)*r*rand(0.8,1.12)});
+    }
+    return pts;
+  }
+
+  function pointInPoly(pt, poly){
+    let c=false;
+    for(let i=0,j=poly.length-1;i<poly.length;j=i++){
+      const pi=poly[i], pj=poly[j];
+      if(((pi.y>pt.y)!==(pj.y>pt.y)) && (pt.x < (pj.x-pi.x)*(pt.y-pi.y)/(pj.y-pi.y)+pi.x)) c=!c;
+    }
+    return c;
+  }
+
+  function generateWorld(){
+    resize();
+    world = { islands: [], places: [], seaSeed: Math.random()*9999 };
+    const islandCount = W < 700 ? randi(4,6) : randi(6,9);
+    const centers=[];
+    for(let i=0;i<islandCount;i++){
+      let tries=0, ok=false, cx, cy, r;
+      while(!ok && tries<300){
+        r = rand(W<700?60:75, W<700?110:150);
+        cx = rand(r+30, W-r-30);
+        cy = rand(160+r*0.5, H-r-90);
+        ok = centers.every(c => Math.hypot(cx-c.x, cy-c.y) > r + c.r + 50);
+        tries++;
+      }
+      if(!ok) continue;
+      const poly = generateIsland(cx, cy, r, randi(26,38));
+      const island = { name: choice(islandNames), x:cx, y:cy, r, poly, places:[] };
+      centers.push({x:cx,y:cy,r});
+      world.islands.push(island);
+    }
+
+    for(const island of world.islands){
+      const portCount = 1;
+      const villageCount = randi(1,3);
+      for(let p=0;p<portCount+villageCount;p++){
+        const isPort = p < portCount;
+        let pos, tries=0;
+        while(tries<300){
+          const a = rand(0, Math.PI*2);
+          const rr = isPort ? island.r*rand(0.82,1.08) : island.r*rand(0.15,0.6);
+          const x = island.x + Math.cos(a)*rr;
+          const y = island.y + Math.sin(a)*rr*rand(0.8,1.1);
+          const inside = pointInPoly({x,y}, island.poly);
+          if((isPort ? !inside : inside) && world.places.every(pp => Math.hypot(pp.x-x,pp.y-y) > 42)){
+            pos = {x,y}; break;
+          }
+          tries++;
+        }
+        if(!pos) continue;
+        const specialty = choice(goods).key;
+        const place = {
+          id: crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2),
+          type: isPort ? 'port' : 'village',
+          name: isPort ? choice(portNames) : choice(villageNames),
+          island: island.name,
+          x: pos.x, y: pos.y,
+          radius: isPort ? 16 : 12,
+          specialty,
+          market: {}
+        };
+        seedMarket(place);
+        world.places.push(place);
+        island.places.push(place);
+      }
+    }
+
+    const firstPort = world.places.find(p=>p.type==='port') || world.places[0];
+    player.x = firstPort.x; player.y = firstPort.y; player.target = null; player.locationName = firstPort.name;
+    selected = firstPort;
+    updateUI();
+  }
+
+  function seedMarket(place){
+    const base = {hout:70, vis:55, kruiden:110, erts:125, stof:95};
+    for(const g of goods){
+      let price = base[g.key] + rand(-18,18);
+      if(place.type === 'village') price += rand(-10,8);
+      if(place.type === 'port') price += rand(-4,14);
+      if(place.specialty === g.key) price *= place.type === 'village' ? rand(0.62,0.8) : rand(0.85,0.95);
+      const stockBase = place.type === 'village' ? randi(5,13) : randi(2,8);
+      place.market[g.key] = { price: Math.max(18, Math.round(price)), stock: place.specialty===g.key ? stockBase+randi(3,8) : stockBase };
+    }
+  }
+
+  function shiftMarkets(){
+    for(const place of world.places){
+      for(const g of goods){
+        const item = place.market[g.key];
+        item.price = Math.max(15, Math.round(item.price + rand(-12,12)));
+        item.stock = Math.max(0, Math.min(20, item.stock + randi(-2,3)));
+      }
+      place.market[place.specialty].stock = Math.min(24, place.market[place.specialty].stock + randi(1,3));
+      place.market[place.specialty].price = Math.max(15, place.market[place.specialty].price - randi(0,5));
+    }
+  }
+
+  function getPlaceAt(x,y){
+    let hit = null;
+    for(const p of world.places){
+      if(Math.hypot(x-p.x,y-p.y) <= p.radius + 14) hit = p;
+    }
+    return hit;
+  }
+
+  function setSelected(place){
+    selected = place;
+    updateUI();
+  }
+
+  function sailTo(place){
+    if(!place) return;
+    player.target = place;
+    setSelected(place);
+    showToast('Koers gezet naar ' + place.name);
+  }
+
+  function arrive(place){
+    player.target = null;
+    player.x = place.x; player.y = place.y; player.day += 1;
+    player.locationName = place.name;
+    shiftMarkets();
+    setSelected(place);
+    showToast('Aangekomen in ' + place.name);
+  }
+
+  function buy(gKey, amount=1){
+    if(!selected) return;
+    const slot = selected.market[gKey];
+    if(!slot || slot.stock < amount) return showToast('Niet genoeg voorraad');
+    if(totalCargo()+amount > player.cargoMax) return showToast('Ruim vol');
+    const price = slot.price*amount;
+    if(player.money < price) return showToast('Te weinig geld');
+    player.money -= price;
+    slot.stock -= amount;
+    player.cargo[gKey] = (player.cargo[gKey]||0) + amount;
+    updateUI();
+  }
+
+  function sell(gKey, amount=1){
+    if(!selected) return;
+    const have = player.cargo[gKey]||0;
+    if(have < amount) return showToast('Niet in cargo');
+    const price = selected.market[gKey].price*amount;
+    player.money += price;
+    player.cargo[gKey] -= amount;
+    if(player.cargo[gKey] <= 0) delete player.cargo[gKey];
+    selected.market[gKey].stock = Math.min(24, selected.market[gKey].stock + amount);
+    updateUI();
+  }
+
+  function updateUI(){
+    moneyVal.textContent = fmt(player.money);
+    cargoVal.textContent = `${totalCargo()} / ${player.cargoMax}`;
+    dayVal.textContent = player.day;
+    locationVal.textContent = player.locationName;
+
+    if(!selected){
+      placeName.textContent = 'Geen selectie';
+      placeDesc.textContent = 'Tik op een haven of dorp.';
+      actions.innerHTML = '';
+      return;
+    }
+
+    const kind = selected.type === 'port' ? 'Haven' : 'Dorp';
+    placeName.textContent = `${selected.name}`;
+    placeDesc.innerHTML = `<span class="tag">${kind}</span> op ${selected.island}<br>Specialiteit: <b>${selected.specialty}</b>`;
+
+    let html = `<div class="grid2"><button class="btn" data-act="sail">Vaar hierheen</button><button class="btn" data-act="sellall">Verkoop winstkans</button></div>`;
+    html += `<div class="section"><h3>Markt</h3>`;
+    for(const g of goods){
+      const m = selected.market[g.key];
+      const avg = averagePrice(g.key);
+      const cls = m.price > avg*1.08 ? 'priceUp' : m.price < avg*0.92 ? 'priceDown' : 'priceNeutral';
+      html += `
+      <div class="good">
+        <div><b>${g.icon} ${g.key}</b><div class="small">Voorraad ${m.stock}</div></div>
+        <div class="pill ${cls}">${fmt(m.price)}</div>
+        <div style="display:flex;gap:6px">
+          <button class="mini" data-buy="${g.key}">+ Koop</button>
+          <button class="mini" data-sell="${g.key}">- Verkoop</button>
+        </div>
+      </div>`;
+    }
+    html += `</div>`;
+    actions.innerHTML = html;
+
+    cargoList.innerHTML = '';
+    if(totalCargo()===0){ cargoList.textContent = 'Leeg ruim.'; }
+    else {
+      for(const g of goods){
+        const qty = player.cargo[g.key]||0;
+        if(!qty) continue;
+        const row = document.createElement('div');
+        row.className = 'cargoRow';
+        row.innerHTML = `<div><b>${g.icon} ${g.key}</b><div class="small">${qty} eenheden</div></div><div class="pill">${fmt((selected.market[g.key]?.price||0)*qty)}</div>`;
+        cargoList.appendChild(row);
+      }
+    }
+
+    renderTips();
+    bindButtons();
+  }
+
+  function averagePrice(gKey){
+    let sum=0; for(const p of world.places) sum += p.market[gKey].price; return sum/world.places.length;
+  }
+
+  function bestBuySellTips(){
+    const out=[];
+    for(const g of goods){
+      let lo=world.places[0], hi=world.places[0];
+      for(const p of world.places){
+        if(p.market[g.key].price < lo.market[g.key].price) lo = p;
+        if(p.market[g.key].price > hi.market[g.key].price) hi = p;
+      }
+      out.push({g, lo, hi, margin: hi.market[g.key].price - lo.market[g.key].price});
+    }
+    return out.sort((a,b)=>b.margin-a.margin);
+  }
+
+  function renderTips(){
+    const list = bestBuySellTips().slice(0,4);
+    tips.innerHTML = list.map(t => `
+      <div class="cargoRow">
+        <div><b>${t.g.icon} ${t.g.key}</b><div class="small">Koop bij ${t.lo.name} · verkoop bij ${t.hi.name}</div></div>
+        <div class="pill">+ ${fmt(t.margin)}</div>
+      </div>`).join('');
+  }
+
+  function bindButtons(){
+    actions.querySelector('[data-act="sail"]')?.addEventListener('click', ()=> sailTo(selected));
+    actions.querySelector('[data-act="sellall"]')?.addEventListener('click', ()=> {
+      let sold = 0;
+      for(const g of goods){
+        const qty = player.cargo[g.key]||0;
+        if(!qty) continue;
+        const avg = averagePrice(g.key);
+        if(selected.market[g.key].price >= avg){ sell(g.key, qty); sold += qty; }
+      }
+      if(!sold) showToast('Nog geen goeie verkoopdeal');
+    });
+    actions.querySelectorAll('[data-buy]').forEach(btn => btn.addEventListener('click', ()=> buy(btn.dataset.buy,1)));
+    actions.querySelectorAll('[data-sell]').forEach(btn => btn.addEventListener('click', ()=> sell(btn.dataset.sell,1)));
+  }
+
+  function drawSea(){
+    const g = ctx.createLinearGradient(0,0,0,H);
+    g.addColorStop(0,'#204c67');
+    g.addColorStop(.35,'#1b425a');
+    g.addColorStop(1,'#11293a');
+    ctx.fillStyle = g;
+    ctx.fillRect(0,0,W,H);
+
+    const t = performance.now()*0.00015;
+    for(let i=0;i<18;i++){
+      const y = (i/18)*H + Math.sin(t*100 + i)*7;
+      ctx.strokeStyle = `rgba(255,255,255,${0.03 + i*0.001})`;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      for(let x=-20;x<=W+20;x+=16){
+        const yy = y + Math.sin(x*0.015 + t*45 + i)*4;
+        if(x===-20) ctx.moveTo(x,yy); else ctx.lineTo(x,yy);
+      }
+      ctx.stroke();
+    }
+  }
+
+  function drawIsland(island){
+    ctx.save();
+    ctx.beginPath();
+    island.poly.forEach((p,i)=> i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));
+    ctx.closePath();
+    const g = ctx.createRadialGradient(island.x,island.y,island.r*.2,island.x,island.y,island.r*1.25);
+    g.addColorStop(0,'#8bb166');
+    g.addColorStop(.5,'#618447');
+    g.addColorStop(1,'#3f5d31');
+    ctx.fillStyle = g;
+    ctx.shadowColor = 'rgba(0,0,0,.2)';
+    ctx.shadowBlur = 18;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.strokeStyle = 'rgba(255,244,188,.35)';
+    ctx.lineWidth = 8;
+    ctx.stroke();
+    ctx.strokeStyle = 'rgba(0,0,0,.12)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    for(let i=0;i<Math.max(8, island.r/8);i++){
+      const a = rand(0,Math.PI*2), rr = rand(12,island.r*0.65);
+      const x = island.x + Math.cos(a)*rr;
+      const y = island.y + Math.sin(a)*rr*rand(.8,1.1);
+      if(pointInPoly({x,y}, island.poly)){
+        ctx.fillStyle = 'rgba(31,62,26,.35)';
+        ctx.beginPath(); ctx.arc(x,y,rand(3,8),0,Math.PI*2); ctx.fill();
+      }
+    }
+
+    ctx.fillStyle='rgba(255,255,255,.66)';
+    ctx.font='600 12px -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif';
+    ctx.textAlign='center';
+    ctx.fillText(island.name, island.x, island.y - island.r - 10);
+    ctx.restore();
+  }
+
+  function drawPlace(p){
+    const isSel = selected && selected.id===p.id;
+    ctx.save();
+    if(p.type==='port'){
+      ctx.strokeStyle='rgba(255,255,255,.8)';
+      ctx.lineWidth=3;
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.radius,0,Math.PI*2);
+      ctx.stroke();
+      ctx.fillStyle='#f1c86b';
+      ctx.fillRect(p.x-4,p.y-10,8,20);
+      ctx.fillStyle='#fff2c4';
+      ctx.beginPath(); ctx.arc(p.x,p.y-12,6,0,Math.PI*2); ctx.fill();
+    } else {
+      ctx.fillStyle='#f3f0ea';
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.radius,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='#ad7a55';
+      ctx.fillRect(p.x-8,p.y+2,16,10);
+      ctx.fillStyle='#c65b5b';
+      ctx.beginPath(); ctx.moveTo(p.x-10,p.y+3); ctx.lineTo(p.x,p.y-10); ctx.lineTo(p.x+10,p.y+3); ctx.closePath(); ctx.fill();
+    }
+    if(isSel){
+      ctx.strokeStyle='rgba(124,199,255,.9)'; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.radius+8+Math.sin(performance.now()*0.008)*2,0,Math.PI*2); ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  function drawBoat(){
+    ctx.save();
+    const ang = player.target ? Math.atan2(player.target.y-player.y, player.target.x-player.x) : 0;
+    ctx.translate(player.x, player.y);
+    ctx.rotate(ang);
+    ctx.fillStyle='#3b2d20';
+    ctx.beginPath();
+    ctx.moveTo(14,0); ctx.lineTo(4,8); ctx.lineTo(-12,8); ctx.lineTo(-16,0); ctx.lineTo(-12,-8); ctx.lineTo(4,-8); ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle='#f5f2e8';
+    ctx.beginPath(); ctx.moveTo(-2,-14); ctx.lineTo(-2,0); ctx.lineTo(8,-6); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle='rgba(255,255,255,.4)'; ctx.lineWidth=1.2;
+    ctx.beginPath(); ctx.moveTo(-2,-16); ctx.lineTo(-2,10); ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawRoute(){
+    if(!player.target) return;
+    ctx.save();
+    ctx.setLineDash([6,8]);
+    ctx.strokeStyle='rgba(255,255,255,.35)';
+    ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(player.x,player.y); ctx.lineTo(player.target.x,player.target.y); ctx.stroke();
+    ctx.restore();
+  }
+
+  function update(){
+    if(player.target){
+      const dx = player.target.x-player.x, dy = player.target.y-player.y;
+      const d = Math.hypot(dx,dy);
+      if(d < player.speed + 1.5){ arrive(player.target); }
+      else {
+        player.x += dx/d * player.speed;
+        player.y += dy/d * player.speed;
+      }
+    }
+  }
+
+  function render(){
+    drawSea();
+    world.islands.forEach(drawIsland);
+    drawRoute();
+    world.places.forEach(drawPlace);
+    drawBoat();
+  }
+
+  function loop(){ update(); render(); requestAnimationFrame(loop); }
+
+  function pointerPos(e){
+    const rect = canvas.getBoundingClientRect();
+    const t = e.touches ? e.touches[0] : e;
+    return {x:t.clientX - rect.left, y:t.clientY - rect.top};
+  }
+
+  function onTap(e){
+    const p = pointerPos(e);
+    const hit = getPlaceAt(p.x,p.y);
+    if(hit){
+      if(selected && selected.id === hit.id) sailTo(hit);
+      else setSelected(hit);
+    }
+  }
+
+  window.addEventListener('resize', ()=>{ resize(); render(); });
+  canvas.addEventListener('click', onTap);
+  canvas.addEventListener('touchstart', e => { onTap(e); }, {passive:true});
+  document.getElementById('regenBtn').addEventListener('click', ()=> {
+    player.money = 1200; player.cargo = {}; player.day = 1;
+    generateWorld(); showToast('Nieuwe wereld gemaakt');
+  });
+
+  resize();
+  generateWorld();
+  loop();
+})();
 </script>
-</body></html>
+</body>
+</html>
